@@ -8,7 +8,7 @@ This is a partial implementation of EPUB Media Overlays.
 # Run test
 
 (first time)
-Get Ruby 1.9.x
+Get Ruby 1.9.x, install it, and run:
 
     $ gem install bundle
     $ bundle install
