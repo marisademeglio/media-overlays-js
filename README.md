@@ -7,10 +7,11 @@ EPUB Media Overlays javascript implementation
 
 (first time)
 Get Ruby 1.9.x
-$ gem install bundle
-$ bundle install
+    $ gem install bundle
+    $ bundle install
 
-Then (every time), start the local server in the source code directory with $ rake server
+Then (every time), start the local server in the source code directory with 
+    $ rake server
 
 Navigate to http://localhost:4000/mo.html and press "play"
 
