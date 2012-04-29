@@ -20,6 +20,9 @@ Then (every time), start the local server in the source code directory with
 Navigate to http://localhost:4000/mo.html and press "play"
 
 # Use
+
+Dependencies: jQuery 1.7.x
+
 How to use the MediaOverlaysPlayer
 
     moPlayer = new MediaOverlaysPlayer
