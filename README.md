@@ -22,10 +22,23 @@ Navigate to http://localhost:4000/mo.html and press "play"
 # Use
 How to use the MediaOverlaysPlayer
 
-    obj = new MediaOverlaysPlayer
-    obj.playFile(url)
+    moPlayer = new MediaOverlaysPlayer
+    moPlayer.playFile(url)
+
+Where url is a SMIL file.
+
+You also have access to the audio player:
     
-Where url is a SMIL file
+    audioPlayer = moPlayer.getAudioPlayer();
+
+Which can tell you if the file is playing or not and lets you pause and resume playback.
+    
+    if (audioPlayer.isPlaying()) {
+        audioPlayer.pause();
+    }
+    else {
+        audioPlayer.resume();
+    }
 
 # Future additions
 
