@@ -1,178 +1,6 @@
 // mo-player.js
 // plays a media overlay file
 
-// annotate the SMIL DOM with playback functions
-SmilModelBuilder = function() {
-    
-    // wrap these functions up to keep this looking clean-ish
-    NodeLogic = {
-        // play a par node
-        parRender: function() {
-            $.each(this.childNodes, function(index, value) {
-                if (value.hasOwnProperty("render")) {
-                    value.render();
-                } 
-            });
-        },
-    
-        // play a seq node
-        // play all child nodes in a sequence (e.g. one par at a time)
-        seqRender: function() {
-            var idx = this.playbackIndex;
-            
-            // we have to test for this here as well as in seqNotifyChildDone
-            // because the index could be increased for nodes that aren't being played (e.g. xml text nodes)
-            if (idx >= this.childNodes.length - 1) {
-                // the top of our playback tree is <body>, not <smil>
-                if (this.parentNode != null && this.parentNode.tagName != "smil") {
-                    this.parentNode.notifyChildDone(this);
-                }
-                else {
-                    notifySmilDone();
-                }                
-            }
-            else {
-                if (this.childNodes[idx].hasOwnProperty("render")) {
-                    this.childNodes[idx].render();
-                }
-                // some child nodes, e.g. xml text nodes, won't have a 'render' property, so we can skip them
-                else {
-                    this.playbackIndex++;
-                    this.render();
-                }
-            }
-        },
-    
-        // for audio nodes
-        // called when the clip has completed playback
-        audioNotifyMediaRenderDone: function() {
-            this.parentNode.notifyChildDone(this);
-        },
-    
-        // for par nodes
-        // receive notice that a child node has finished playing
-        parNotifyChildDone: function(node) {
-            // we're only expecting one audio node child that we have to wait for
-            // in the case of a more complex SMIL document (i.e. not media overlays), 
-            // we might have to wait for more children to finish playing
-            if (node.tagName == "audio") {
-                this.parentNode.notifyChildDone(this);
-            }
-        },
-    
-        // receive notice that a child node has finished playing
-        seqNotifyChildDone: function(node) {
-            var idx = this.playbackIndex;
-            if (idx >= this.childNodes.length - 1) {
-                // the top of our playback tree is <body>, not <smil>
-                if (this.parentNode != null && this.parentNode.tagName != "smil") {
-                    this.parentNode.notifyChildDone(this);
-                }
-                else {
-                    notifySmilDone();
-                }
-            }
-            else {
-                this.playbackIndex++;
-                this.render();
-            }
-        }
-    };
-    
-    
-    // default renderers for time container playback
-    // treat <body> like <seq>
-    var renderers = {"seq": NodeLogic.seqRender, 
-                    "par": NodeLogic.parRender, 
-                    "body": NodeLogic.seqRender};
-                    
-    // each node type has a notification function associated with it
-    var notifiers = {"seq": NodeLogic.seqNotifyChildDone, 
-                    "par": NodeLogic.parNotifyChildDone, 
-                    "body": NodeLogic.seqNotifyChildDone,
-                    "audio": NodeLogic.audioNotifyMediaRenderDone,
-                    "text": function() {}}
-    var url = null;
-    var notifySmilDone = null;
-    
-    // call this first with the media node renderers to add them to the list
-    this.addRenderers = function(rendererList) {
-        renderers = $.extend(renderers, rendererList);
-    };
-    
-    this.setUrl = function(fileUrl) {
-        url = fileUrl;
-    }
-    
-    // set the callback for when the tree is done
-    this.setNotifySmilDone = function(fn) {
-        notifySmilDone = fn;
-    }
-        
-    this.processTree = function(node) {
-        processNode(node);
-        var self = this;
-        if (node.childNodes.length > 0) {
-            $.each(node.childNodes, function(idx, val) {
-                self.processTree(val);
-            });
-        }
-    }       
-    function processNode(node) {
-        // add a toString method for debugging
-        node.toString = function() {
-        	var string = "<" + this.nodeName;
-        	for (var i = 0; i < this.attributes.length; i++) {
-        		string += " " + this.attributes.item(i).nodeName + "=" + this.attributes.item(i).nodeValue;
-        	}
-        	string += ">";
-        	return string;
-        }
-        
-        // connect the appropriate renderer
-        if (renderers.hasOwnProperty(node.tagName)) {
-            node.render = renderers[node.tagName];
-        }
-        
-        // connect the notifiers
-        if (notifiers.hasOwnProperty(node.tagName)) {
-            node.notifyChildDone = notifiers[node.tagName];
-        }
-        
-        scrubAttributes(node);
-        
-        // one bit of non-tagname-agnostic code in here
-        if (node.tagName == "seq" || node.tagName == "body") {
-            node.playbackIndex = 0;
-        }
-    }
-    function scrubAttributes(node) {
-        // resolve all srcs
-        if ($(node).attr("src") != undefined) {
-            $(node).attr("src", MOUtils.resolveUrl($(node).attr("src"), url));
-        }
-        
-        // process audio nodes' clock values
-        if (node.tagName == "audio") {
-            if ($(node).attr("clipBegin") != undefined) {
-                $(node).attr("clipBegin", MOUtils.resolveClockValue($(node).attr("clipBegin")));
-            }
-            else {
-                $(node).attr("clipBegin", 0);
-            }
-            
-            if ($(node).attr("clipEnd") != undefined) {
-                $(node).attr("clipEnd", MOUtils.resolveClockValue($(node).attr("clipEnd")));
-            }
-            else {
-                // TODO check if this is reasonable
-                $(node).attr("clipEnd", 9999999);
-            }
-        }
-    } 
-};
-
-
 // main object
 MediaOverlaysPlayer = function() {
     var smiltree = null;
@@ -203,25 +31,21 @@ MediaOverlaysPlayer = function() {
         return audioRenderer.getAudioPlayer();
     };
     function notifyDataLoaded (xml) {
-        var builder = new SmilModelBuilder();
-        builder.setUrl(smilUrl);
-        builder.setNotifySmilDone(notifySmilDone);
+        var model = new SmilModel();
+        model.setUrl(smilUrl);
+        model.setNotifySmilDone(notifySmilDone);
         // use inline functions to pass 'this' (which at runtime will be an xml node) to the renderer
-        builder.addRenderers({
+        model.addRenderers({
             "audio": function() {
                     audioRenderer.render(this);
                 }, 
             "text": function(){
                     textRenderer.render(this);
                 }
-            });
-        // this annotates the tree
-        builder.processTree($(xml).find("body")[0], this);
+        });
         // start the playback tree at <body>
-        smiltree = $(xml).find("body")[0];
-        if (smiltree == null) {
-            return;
-        }
+        smiltree = $(xml).find("body")[0]; 
+        model.processTree(smiltree);
         smiltree.render();
     }
     
@@ -230,11 +54,10 @@ MediaOverlaysPlayer = function() {
         // TODO this is temporary
         textRenderer.printStr("DONE");
     }
-    
-    
 };
 
-// this doesn't do anything spectacular yet
+// this doesn't do anything spectacular yet. it just prints the element's text on the screen.
+// eventually, it will hook into Readium's text display.
 TextRenderer = function() {
     var textUrl = null;
     var htmlBody = null;
@@ -252,6 +75,7 @@ TextRenderer = function() {
             continueRender();
         }
     };
+    
     this.setHtmlBody = function(elm) {
         htmlBody = elm;
     };
@@ -281,6 +105,7 @@ TextRenderer = function() {
     
 };
 
+// sends audio nodes to an AudioClipPlayer
 AudioRenderer = function() {
     var audioplayer = new AudioClipPlayer;
     var currentNode = null;
@@ -300,7 +125,182 @@ AudioRenderer = function() {
             currentNode.notifyChildDone();
         }
     }
-}
+};
+
+// SmilModel extends the XML DOM of a SMIL file by annotating it with playback functions
+SmilModel = function() {
+    
+    // these are playback logic functions for SMIL nodes
+    // the context of each function is the node itself, as these functions will be attached to the nodes as members
+    NodeLogic = {
+        
+        parRender: function() {
+            $.each(this.childNodes, function(index, value) {
+                if (value.hasOwnProperty("render")) {
+                    value.render();
+                } 
+            });
+        },
+    
+        seqRender: function() {
+            var idx = this.playbackIndex;
+            
+            // we have to test for this here as well as in seqNotifyChildDone
+            // because the index could have been increased for nodes that aren't being played (e.g. xml text nodes)
+            if (idx >= this.childNodes.length - 1) {
+                // the top of our playback tree is <body>, not <smil>
+                if (this.parentNode != null && this.parentNode.tagName != "smil") {
+                    this.parentNode.notifyChildDone(this);
+                }
+                else {
+                    notifySmilDone();
+                }                
+            }
+            else {
+                if (this.childNodes[idx].hasOwnProperty("render")) {
+                    this.childNodes[idx].render();
+                }
+                // some child nodes, e.g. xml text nodes, won't have a 'render' property, so we can skip them
+                else {
+                    this.playbackIndex++;
+                    this.render();
+                }
+            }
+        },
+    
+        // called when the clip has completed playback
+        audioNotifyMediaRenderDone: function() {
+            this.parentNode.notifyChildDone(this);
+        },
+    
+        // receive notice that a child node has finished playing
+        parNotifyChildDone: function(node) {
+            // we're only expecting one audio node child that we have to wait for
+            // in the case of a more complex SMIL document (i.e. not media overlays), 
+            // we might have to wait for more children to finish playing
+            if (node.tagName == "audio") {
+                this.parentNode.notifyChildDone(this);
+            }
+        },
+    
+        // receive notice that a child node has finished playing
+        seqNotifyChildDone: function(node) {
+            var idx = this.playbackIndex;
+            if (idx >= this.childNodes.length - 1) {
+                // the top of our playback tree is <body>, not <smil>
+                if (this.parentNode != null && this.parentNode.tagName != "smil") {
+                    this.parentNode.notifyChildDone(this);
+                }
+                else {
+                    notifySmilDone();
+                }
+            }
+            else {
+                // prepare to play the next child node
+                this.playbackIndex++;
+                this.render();
+            }
+        }
+    };
+    
+    
+    // default renderers for time container playback
+    // treat <body> like <seq>
+    var renderers = {"seq": NodeLogic.seqRender, 
+                    "par": NodeLogic.parRender, 
+                    "body": NodeLogic.seqRender};
+                    
+    // each node type has a notification function associated with it
+    var notifiers = {"seq": NodeLogic.seqNotifyChildDone, 
+                    "par": NodeLogic.parNotifyChildDone, 
+                    "body": NodeLogic.seqNotifyChildDone,
+                    "audio": NodeLogic.audioNotifyMediaRenderDone,
+                    "text": function() {}}
+    var url = null;
+    var notifySmilDone = null;
+    
+    // call this first with the media node renderers to add them to the master list
+    this.addRenderers = function(rendererList) {
+        renderers = $.extend(renderers, rendererList);
+    };
+    
+    // set this so the model can resolve src attributes
+    this.setUrl = function(fileUrl) {
+        url = fileUrl;
+    }
+    
+    // set the callback for when the tree is done
+    this.setNotifySmilDone = function(fn) {
+        notifySmilDone = fn;
+    }
+        
+    // main entry point
+    this.processTree = function(node) {
+        processNode(node);
+        var self = this;
+        if (node.childNodes.length > 0) {
+            $.each(node.childNodes, function(idx, val) {
+                self.processTree(val);
+            });
+        }
+    }       
+    
+    // process a single node and attach render and notify functions to it
+    function processNode(node) {
+        // add a toString method for debugging
+        node.toString = function() {
+        	var string = "<" + this.nodeName;
+        	for (var i = 0; i < this.attributes.length; i++) {
+        		string += " " + this.attributes.item(i).nodeName + "=" + this.attributes.item(i).nodeValue;
+        	}
+        	string += ">";
+        	return string;
+        }
+        
+        // connect the appropriate renderer
+        if (renderers.hasOwnProperty(node.tagName)) {
+            node.render = renderers[node.tagName];
+        }
+        
+        // connect the notifiers
+        if (notifiers.hasOwnProperty(node.tagName)) {
+            node.notifyChildDone = notifiers[node.tagName];
+        }
+        
+        scrubAttributes(node);
+        
+        // one bit of non-tagname-agnostic code in here
+        if (node.tagName == "seq" || node.tagName == "body") {
+            node.playbackIndex = 0;
+        }
+    }
+    
+    // make sure the attributes are to our liking
+    function scrubAttributes(node) {
+        // resolve all srcs
+        if ($(node).attr("src") != undefined) {
+            $(node).attr("src", MOUtils.resolveUrl($(node).attr("src"), url));
+        }
+        
+        // process audio nodes' clock values
+        if (node.tagName == "audio") {
+            if ($(node).attr("clipBegin") != undefined) {
+                $(node).attr("clipBegin", MOUtils.resolveClockValue($(node).attr("clipBegin")));
+            }
+            else {
+                $(node).attr("clipBegin", 0);
+            }
+            if ($(node).attr("clipEnd") != undefined) {
+                $(node).attr("clipEnd", MOUtils.resolveClockValue($(node).attr("clipEnd")));
+            }
+            else {
+                // TODO check if this is reasonable
+                $(node).attr("clipEnd", 9999999);
+            }
+        }
+    } 
+};
+
 
 // utility functions
 MOUtils = {
