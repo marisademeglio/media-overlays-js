@@ -3,6 +3,8 @@ media-overlays-js
 
 EPUB Media Overlays javascript implementation
 
+This is a partial implementation of EPUB Media Overlays.  
+
 # Run test
 
 (first time)
