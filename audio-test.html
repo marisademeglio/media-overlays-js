@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Media Overlays Experiments</title>
+        
+        <script src="js/lib/jquery-1.7.1.min.js"></script>
+        <script src="js/audio-clip-player.js"></script>
+        <script>
+        
+       $(document).ready(function() {
+           obj = new Test();
+           obj.start();
+        });
+        
+        Test = function() {
+            var audioplayer = new AudioClipPlayer;
+            var ready = true;
+            var clips = [[24.5, 28.5],[29.268, 29.441], [29.441, 29.640], [29.640, 30.397]];
+            var idx = 0;
+            var src = "http://localhost:4000/testdata/moby/audio/mobydick_001_002_melville.mp4";
+            
+            this.start = function() {
+                var self = this;
+                audioplayer.setNotifyClipDone(function() {
+                    notifyDone();   
+                });
+                audioplayer.setNotifyDebugPrint(function(str) {
+                    notifyDebugPrint(str);
+                })
+                $("#playpause").click(function() {
+                    if (audioplayer.isPlaying()) {
+                        pause();
+                    }
+                    else {
+                        play();
+                    }
+                });
+            };
+            
+            function notifyDone() {
+                idx++;
+                if (idx >= clips.length) {
+                    idx = 0;
+                }
+                ready = true;
+                play();
+            }
+            
+            function play() {
+                if (ready == true) {
+                    ready = false;
+                    audioplayer.play(src, clips[idx][0], clips[idx][1]);
+                }
+                else {
+                    audioplayer.resume();
+                }
+            }
+            
+            function pause() {
+                audioplayer.pause(); 
+            }
+            
+            function notifyDebugPrint(str) {
+                if (str == undefined) return;
+                $("#debug").append("<p>" + str + "</p>");
+            }
+        }
+        
+        </script>
+    </head>
+    <body>
+        <h1>Audio clip test</h1>
+        
+        <button id="playpause">Play/Pause</button>
+        
+        <div id="debug"></div>
+    </body>
+</html>

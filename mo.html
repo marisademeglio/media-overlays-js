@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Media Overlays Experiments</title>
+        
+        <script src="js/lib/jquery-1.7.1.min.js"></script>
+        <script src="js/mo-player.js"></script>
+        <script src="js/audio-clip-player.js"></script>
+        <script>
+        
+       $(document).ready(function() {
+           var moplayer = new MediaOverlaysPlayer();
+           var SMIL = "http://localhost:4000/testdata/moby/chapter_001_overlay.smil";
+           var loaded = false;
+           
+           moplayer.setHtmlBody($("body")[0]);
+           
+           var audioplayer = moplayer.getAudioPlayer();
+           
+           $("#playpause").click(function() {
+               if (audioplayer.isPlaying()) {
+                   audioplayer.pause();
+               }
+               else {
+                   if (loaded == false) {
+                       loaded = true;
+                       moplayer.playFile(SMIL);
+                   }
+                   else {
+                       audioplayer.resume();
+                   }
+               }
+           });
+        });
+        
+        </script>
+    </head>
+    <body>
+        <h1>Media Overlays Playback Simulation</h1>
+        <button id="playpause">Play/Pause</button>
+    </body>
+</html>

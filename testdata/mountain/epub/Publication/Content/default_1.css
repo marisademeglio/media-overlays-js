@@ -1,0 +1,159 @@
+/* 
+Daisy 2.02 narrator_1 css m gylling tpb 20020411
+This css is aimed for xhtml content documents, supports the xhtml1.1 Text, Hypertext, Lists and Tables modules.
+Also supports styling of 2.02 ncc document.
+Comments are provided to facilitate modification and customization.
+Modified by p sennels, huseby: 20021115, 20021204
+*/
+
+/* ps -----------------------------------------------------------------------------*/
+/* Line below the title of the book, title shifted left a bit */
+h1.title {
+  color:rgb(0,0,255);
+  padding-bottom:0.4em;
+  margin-bottom:10mm;
+/*  margin-left:-2em; */
+  border-bottom:solid 1pt Rgb(0,0,128);
+  border-top: none;}
+
+/* Title in blue */
+h1.title a {
+  color:rgb(0,0,128);
+  }
+
+/* Dark blue for the rest of the section headers */
+h1 a, h2 a,h3 a,h4 a,h5 a,h6 a {
+    color:rgb(0,0,128);
+    line-height:1.3em;  /* Extra line height needed to display without overlap */
+} 
+
+/* Solid line over h1, increased margin over the heading */
+h1 {
+  padding-top:3mm;
+/*  border-top: solid 1px Gray; */
+  margin-top: 15mm;
+}
+
+/* Increased margin for h2 - h4 */
+h2,h3,h4 {margin-top: 8mm;}
+
+/* Dark red with left border for sidebars and notices */
+span.sidebar, span.notice {
+  display:block;
+  border:1px solid rgb(150,150,150);
+  padding:0.3em;
+  margin:0.5em;}
+
+/* Prodnotes are gray */
+span.optional-prodnote a {color:gray;}
+
+/* the extra elements added after a skip element, only necessary in ncc only
+reduced in size and gray */
+div.continued a {
+  color:rgb(150,150,150);
+  font-size: 80%;
+    }
+/* --------------------------------------------------------------- */
+
+body {
+  font-family : arial, verdana, sans-serif;     /* removes serifs - instead use plain endings */
+  margin-right : 15%;               /* shortening line lengths; higher percentage means shorter line  */
+  margin-left : 10%;                /* shortening line lengths; higher percentage means shorter line */
+  margin-top : 5%; 
+  margin-bottom : 5%;
+  color : rgb(0,0,0);              /* sets text node color to black */
+  background-color : rgb(255,255,255);       /* sets background color to white */
+  line-height:1.3em;
+}
+
+a {
+   text-decoration : none;          /* removes underline for inactive anchored elements (all in ncc, and in content document if linkback is used) */
+   color : rgb(0,0,0)               /* sets text node color to black */
+}
+
+a:hover, a:active, a:focus {
+  text-decoration : underline;          /* sets underline when hovering or active or focus */
+  color  : rgb(0,0,255)             /* sets color to classic hyperlink blue when hovering or active */
+}
+
+span.page-normal, span.page-special, span.page-front {
+   display : block;             /* forces linebreak if several pages occur in uninterrupted sequence. If the css is used for the a ncc document or an ncc only book; this may be changed to "display : block;" */
+   text-align : left;               /* aligns max left; and */
+   margin-left: -2em;               /* determines amount of float outside common vertical leftmargin */
+   font-weight : bold;
+}
+
+span.noteref {
+   vertical-align : super;          /* superscripts the text node */
+   font-size : 80%;             /* a typographical downsize */
+   border : 1px solid rgb(255,0,0);     /* a mnemonic border; to be able to differentiate from other navigable integer elements */
+   padding-left: 0.3em;             /* increases the size of the box to facilitate mouseclick */
+   padding-right: 0.3em;            /* increases the size of the box to facilitate mouseclick */
+   padding-top: 0em;                
+   padding-bottom: 0em;
+   margin-left:0.2em;
+    margin-right:0.2em;
+}
+
+/* ps, added a margin at the top */
+div.notebody {
+   border : 1px solid rgb(255,0,0);     /* sets same border type as span.noteref */
+   padding: 0.2em;
+   margin-top:1em;
+}
+                        
+kbd {           
+  font-variant : small-caps;            /* inverts colors for the kbd element (used for computer keyboard shortcut descriptions) */
+  font-size: 100%;
+  background : black;
+  color : white
+}
+
+img {
+  border-style : none               /* removes borders around images */
+}
+
+table {
+   border : 1px solid black;            /* sets a 1 pixel solid black line around table */
+   empty-cells : show               /* sets borders also around empty cells */
+}
+
+th,td {
+   border : 1px solid black;            /* sets a 1 pixel solid black line around table cells*/
+   padding : 0.5em              /* defines inner cell distance between text and border. Higher value= larger distance */
+}
+
+table caption
+{
+   text-align : left                /* otherwise the caption is centered above the table */
+}
+
+
+/* below formats headings for improved perception */
+h1.title {
+  font-size : 210%;
+}
+
+h1 {
+  font-size : 200%              
+}
+
+h2 {
+  font-size : 160%
+}
+
+h3 {
+  font-size : 140%
+}
+
+h4 {
+  font-size : 120%
+}
+
+h5 {
+  font-size : 110%
+}
+
+h6 {
+  font-size : 100%
+}

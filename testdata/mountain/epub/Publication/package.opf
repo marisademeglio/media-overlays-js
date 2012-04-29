@@ -1,0 +1,49 @@
+<package xmlns="http://www.idpf.org/2007/opf"
+         xmlns:dc="http://purl.org/dc/elements/1.1/"
+         unique-identifier="pub-id"
+         version="3.0">
+   <opf:metadata xmlns:opf="http://www.idpf.org/2007/opf">
+      <dc:identifier id="pub-id">skipdemo-amsterdam</dc:identifier>
+      <dc:title id="title">Climbing the Highest Mountain</dc:title>
+      <dc:language>en</dc:language>
+      <dc:date id="date">2003-05-08</dc:date>
+      <dc:format>EPUB3</dc:format>
+      <dc:creator>Per Sennels</dc:creator>
+      <dc:publisher>DAISY Consortium</dc:publisher>
+      <dc:subject>Mountains</dc:subject>
+      <dc:contributor id="d179e40">Joan Dahm-Simonsen</dc:contributor>
+      <dc:contributor id="d179e43">Huseby kompetansesenter</dc:contributor>
+      <meta property="dcterms:modified">2012-04-26T18:48:16Z</meta>
+      <opf:meta name="dcterms:modified" content="2012-04-26T18:48:16Z"/>
+      <opf:meta refines="#d179e40" property="role" scheme="marc:relators">nrt</opf:meta>
+      <opf:meta refines="#d179e43" property="role" scheme="marc:relators">pro</opf:meta>
+      <opf:meta property="media:duration" refines="#item_3">02:51.959</opf:meta>
+      <opf:meta property="media:duration">02:51.959</opf:meta>
+      <opf:meta name="media:duration" content="02:51.959"/>
+   </opf:metadata>
+   <manifest>
+      <item media-type="application/xhtml+xml"
+            id="item_1"
+            href="navigation.xhtml"
+            properties="nav"/>
+      <item media-type="application/xhtml+xml"
+            id="item_2"
+            href="Content/ncconlydemo.xhtml"/>
+      <item media-type="application/smil+xml"
+            id="item_3"
+            href="Content/ncconlydemo.smil"/>
+      <item media-type="text/css" id="item_4" href="Content/default_1.css"/>
+      <item media-type="audio/mpeg" id="item_5" href="Content/bagw0019.mp3"/>
+      <item media-type="audio/mpeg" id="item_6" href="Content/bagw001A.mp3"/>
+      <item media-type="audio/mpeg" id="item_7" href="Content/bagw001B.mp3"/>
+      <item media-type="audio/mpeg" id="item_8" href="Content/bagw0014.mp3"/>
+      <item media-type="audio/mpeg" id="item_9" href="Content/bagw0018.mp3"/>
+      <item media-type="audio/mpeg" id="item_10" href="Content/bagw001C.mp3"/>
+      <item media-type="audio/mpeg" id="item_11" href="Content/bagw0017.mp3"/>
+      <item media-type="audio/mpeg" id="item_12" href="Content/bagw001D.mp3"/>
+      <item media-type="application/x-dtbncx+xml" id="item_13" href="ncx.xml"/>
+   </manifest>
+   <spine toc="item_13">
+      <itemref idref="item_2" id="itemref_1"/>
+   </spine>
+</package>
