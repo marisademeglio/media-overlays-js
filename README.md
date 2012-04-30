@@ -10,7 +10,7 @@ This is a partial implementation of EPUB Media Overlays.
 (first time)
 Get Ruby 1.9.x, install it, and run:
 
-    $ gem install bundle
+    $ gem install bundler
     $ bundle install
 
 Then (every time), start the local server in the source code directory with 
