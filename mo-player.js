@@ -132,6 +132,10 @@ SmilModel = function() {
     
     // these are playback logic functions for SMIL nodes
     // the context of each function is the node itself, as these functions will be attached to the nodes as members
+    // e.g. 
+    // parNode.render = parRender
+    // seqNode.render = seqRender
+    // etc
     NodeLogic = {
         
         parRender: function() {
@@ -169,7 +173,7 @@ SmilModel = function() {
         },
     
         // called when the clip has completed playback
-        audioNotifyMediaRenderDone: function() {
+        audioNotifyChildDone: function() {
             this.parentNode.notifyChildDone(this);
         },
     
@@ -211,10 +215,11 @@ SmilModel = function() {
                     "body": NodeLogic.seqRender};
                     
     // each node type has a notification function associated with it
+    // the notifiers get called when a child of the node has finished playback
     var notifiers = {"seq": NodeLogic.seqNotifyChildDone, 
                     "par": NodeLogic.parNotifyChildDone, 
                     "body": NodeLogic.seqNotifyChildDone,
-                    "audio": NodeLogic.audioNotifyMediaRenderDone,
+                    "audio": NodeLogic.audioNotifyChildDone,
                     "text": function() {}}
     var url = null;
     var notifySmilDone = null;
@@ -235,6 +240,7 @@ SmilModel = function() {
     }
         
     // main entry point
+    // recursively process a SMIL XML DOM
     this.processTree = function(node) {
         processNode(node);
         var self = this;
@@ -262,7 +268,7 @@ SmilModel = function() {
             node.render = renderers[node.tagName];
         }
         
-        // connect the notifiers
+        // connect the appropriate notifier
         if (notifiers.hasOwnProperty(node.tagName)) {
             node.notifyChildDone = notifiers[node.tagName];
         }
@@ -271,6 +277,8 @@ SmilModel = function() {
         
         // one bit of non-tagname-agnostic code in here
         if (node.tagName == "seq" || node.tagName == "body") {
+            // TODO consider getting rid of playbackIndex someday
+            // if we know the node that played most recently, we should be able to tell the node that plays next.
             node.playbackIndex = 0;
         }
     }
