@@ -5,6 +5,8 @@ EPUB Media Overlays javascript implementation
 
 This is a partial implementation of EPUB Media Overlays.  
 
+Status: mid-refactor and broken
+
 # Run test
 
 (first time)
@@ -21,36 +23,16 @@ Navigate to http://localhost:4000/mo.html and press "play"
 
 # Use
 
-Dependencies: jQuery 1.7.x
-
-How to use the MediaOverlaysPlayer
-
-    moPlayer = new MediaOverlaysPlayer
-    moPlayer.playFile(url)
-
-Where url is a SMIL file.
-
-You also have access to the audio player:
-    
-    audioPlayer = moPlayer.getAudioPlayer();
-
-Which can tell you if the file is playing or not and lets you pause and resume playback.
-    
-    if (audioPlayer.isPlaying()) {
-        audioPlayer.pause();
-    }
-    else {
-        audioPlayer.resume();
-    }
+See mo.html for an example of how to use.
 
 # Future additions
 
  * Start playback from an offset, e.g. file.smil#ID
- * Means to translate a text ID into a SMIL offset
+ * Means to translate a text ID into a SMIL offset (partially implemented)
  * Attach text renderer to Readium's text display 
  * Text renderer toggles CSS class (given in package file metadata)
 
-# Approach 
+# Approach to SMIL playback
 
 Parse a single SMIL file and annotate the XML DOM as follows:
 
