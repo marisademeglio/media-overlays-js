@@ -9,9 +9,10 @@ Status:
 
  * playback works and backbone events work
  * bug: audible glitch at beginning of audio clips (more noticeable in Chrome than Safari)
- * not yet implemented: see [future additions](#FutureAdditions)
+ * bug: about a word of audio lost between pause and resume
  * bug: audio sync won't work well when the Chrome tab is in the background. [read more](http://stackoverflow.com/questions/8220976/timing-issues-with-playback-of-the-html5-audio-api
 )
+ * not yet implemented: see [future additions](#FutureAdditions)
 
 # Run test
 
@@ -39,8 +40,8 @@ See mo.html for an example of how to use. The main object is a backbone.js model
 
  * Start playback from an offset, e.g. file.smil#ID
  * Continue spine playback when one file is finished
- * More sophisticated text-smil lookup; e.g. if text fragment id is not explicitly in the SMIL file, then the player should locate the nearest match.
- * Text renderer toggles CSS class given in package file metadata (this is probably something Readium will do itself)
+ * More sophisticated text-smil lookup; e.g. if text fragment id is not explicitly linked to by a SMIL element, then the player should locate the nearest match.
+ * Text renderer toggles CSS class given in package file metadata _(this is probably something Readium will do itself)_
  * Preload audio files - local playback not really affected but remote playback will benefit from this
 
 # Approach to SMIL playback
