@@ -26,12 +26,20 @@
                 });
                 audioplayer.setNotifyDebugPrint(function(str) {
                     notifyDebugPrint(str);
-                })
+                });
+                audioplayer.setNotifyOnPause(function() {
+                    console.log("onpause");
+                });
+                audioplayer.setNotifyOnPlay(function() {
+                    console.log("onplay");
+                });
                 $("#playpause").click(function() {
                     if (audioplayer.isPlaying()) {
+                        $("#playpause").text("play");
                         pause();
                     }
                     else {
+                        $("#playpause").text("pause");
                         play();
                     }
                 });

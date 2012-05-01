@@ -36,10 +36,10 @@
             
             render: function() {
                 if (this.model.get("isPlaying")) {
-                    $(this.el).text("pause");
+                    $("#playpause").text("pause");
                 }
                 else {
-                    $(this.el).text("play");
+                    $("#playpause").text("play");
                 }
                 return this;
             },

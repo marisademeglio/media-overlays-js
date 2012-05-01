@@ -59,11 +59,15 @@ AudioClipPlayer = function() {
     };
     
     this.setNotifyOnPause = function(notifyOnPause) {
-        elm.onpause = notifyOnPause;
+        elm.addEventListener("pause", function() {
+            notifyOnPause();
+        });
     };
     
     this.setNotifyOnPlay = function(notifyOnPlay) {
-        elm.onplay = notifyOnPlay;
+        elm.addEventListener("play", function() {
+            notifyOnPlay();
+        });
     }
     
     function loadData(){
@@ -119,7 +123,9 @@ AudioClipPlayer = function() {
     }
     
     function stopElement() {
-        elm.pause();
+        // experiment with not pausing the element at the end of a clip. when the next clip plays, it will set currentTime to where it needs to be.
+        // if we pause in between, it doesn't really accomplish anything, and make any listening UI look funny with play/pause toggling all the time.
+        //elm.pause();
         debugPrint("clip done");
         // call the callback
         if (notifyClipDone != null) {
