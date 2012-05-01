@@ -60,11 +60,11 @@ MediaOverlaysModel = Backbone.Model.extend({
     },
     
     pause: function() {
-        smilplayer.pause();
+        this.audioplayer.pause();
     },
     
     resume: function() {
-        smilplayer.resume();
+        this.audioplayer.resume();
     },
     
     updateIsPlaying: function() {

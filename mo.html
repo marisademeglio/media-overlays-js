@@ -23,9 +23,6 @@
             textview = new TextArea({model: model, el: $("#textarea")});
         });
         
-        
-        
-        
         PlayPauseButton = Backbone.View.extend({
             loaded: false,
             events: {
@@ -34,7 +31,7 @@
             
             initialize: function() {
                 var self = this;
-                this.model.bind('change:isPlaying', self.render);
+                this.model.bind('change:isPlaying', function() {self.render()});
             },
             
             render: function() {
@@ -69,8 +66,8 @@
         TextArea = Backbone.View.extend({
             initialize: function() {
                 var self = this;
-                this.model.bind('change:currentTextUrl', self.render);
-                this.model.bind('change:isDocumentDone', self.done);
+                this.model.bind('change:currentTextUrl', function() {self.render()});
+                this.model.bind('change:isDocumentDone', function() {self.done()});
             },
            
            render: function() {
