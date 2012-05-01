@@ -5,7 +5,10 @@ EPUB Media Overlays javascript implementation
 
 This is a partial implementation of EPUB Media Overlays.  
 
-Status: mid-refactor and broken
+Status: 
+
+ * playback works
+ * bug: isPlaying status not updated
 
 # Run test
 
