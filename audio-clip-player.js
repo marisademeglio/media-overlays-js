@@ -58,6 +58,13 @@ AudioClipPlayer = function() {
         }
     };
     
+    this.setNotifyOnPause = function(notifyOnPause) {
+        elm.onpause = notifyOnPause;
+    };
+    
+    this.setNotifyOnPlay = function(notifyOnPlay) {
+        elm.onplay = notifyOnPlay;
+    }
     
     function loadData(){
         debugPrint("Loading file " + src);

@@ -28,7 +28,8 @@
             properties="nav"/>
       <item media-type="application/xhtml+xml"
             id="item_2"
-            href="Content/ncconlydemo.xhtml"/>
+            href="Content/ncconlydemo.xhtml"
+            media-overlay="item_3"/>
       <item media-type="application/smil+xml"
             id="item_3"
             href="Content/ncconlydemo.smil"/>
