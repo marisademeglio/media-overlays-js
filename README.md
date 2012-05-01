@@ -7,7 +7,7 @@ This is a partial implementation of EPUB Media Overlays.
 
 Status: 
 
- * playback works
+ * playback works and backbone events work
  * bug: audible glitch at beginning of audio clips
  * not yet implemented: see [future additions](#FutureAdditions)
 
@@ -27,7 +27,7 @@ Navigate to http://localhost:4000/mo.html and press "play"
 
 # Use
 
-See mo.html for an example of how to use.
+See mo.html for an example of how to use. The main object is a backbone.js model which updates status variables that can be monitored for change, for example 'isPlaying' and 'currentTextUrl'.
 
 # Future additions
 
