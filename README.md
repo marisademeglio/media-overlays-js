@@ -8,7 +8,7 @@ This is a partial implementation of EPUB Media Overlays.
 Status: 
 
  * playback works
- * bug: isPlaying status variable not updated
+ * bug: audible glitch at beginning of audio clips
  * not yet implemented: see [future additions](#FutureAdditions)
 
 # Run test
