@@ -112,13 +112,13 @@ AudioClipPlayer = function() {
     
     function playElement(duration) {
         // we're using setInterval instead of monitoring the timeupdate event because timeupdate fires, at best, every 200ms, which messes up playback of short phrases.
-        // a 5ms interval gives pretty fine control over the audio
+        // 11ms seems to be chrome's finest allowed granularity for setInterval (and this is for when the tab is active; otherwise it fires about every second)
         var intervalId = setInterval(function() {
             if (elm.currentTime >= clipEnd) {
                 clearInterval(intervalId);
                 stopElement();
             }
-        }, 5);
+        }, 11);
         elm.play();
     }
     
