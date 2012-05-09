@@ -1,3 +1,5 @@
+// brief experiments with webaudio .. buffering takes too long
+// found what is hopefully a better way with html5 audio element
 AudioClipPlayer = function() {
     
     // clip info
