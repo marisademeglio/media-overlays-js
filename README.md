@@ -32,6 +32,7 @@ Navigate to http://localhost:4000/mo-player.html and press "play"
 
  * Skippability
  * Escapability
+ * Integrity check for out of focus tabs
 
 # Approach to SMIL playback
 
