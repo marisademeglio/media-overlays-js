@@ -1,74 +1,54 @@
-// the main object
+// Media Overlays
+// Backbone wrapper for smil-player.js
+// handles audio internally, and broadcasts the url for the current text src
 MediaOverlaysModel = Backbone.Model.extend({
+    
+    defaults: {
+        current_text_document: null,
+        current_text_fragment: null,
+        is_playing: false,
+        should_highlight: true,
+        is_playback_complete: false,
+    },
+    
     smilplayer: null,
-    packageDocument: null,
     audioplayer: null,
-    packageUrl: null,
     
     initialize: function() {
         
         this.smilplayer = new SmilFilePlayer();
-        this.packageDocument = null;
         this.audioplayer = this.smilplayer.getAudioPlayer();
-    
         
-        // use these properties to communicate status
-        this.set({
-            currentTextUrl: null,
-            isPlaying: false,
-            isDocumentDone: true
-        });
         var self = this;
         
         // register for callbacks with the smil and audio players
         this.audioplayer.setNotifyOnPause(function() {
-            self.updateIsPlaying();
+            self.set({is_playing: self.audioplayer.isPlaying()});
         });
         this.audioplayer.setNotifyOnPlay(function(){
            self.updateIsPlaying(); 
         });
         this.smilplayer.setNotifySmilDone(function() {
-            // TODO fetch the next SMIL document and start playing it
-            // for now we'll skip all that and just say we're done with everything
-            self.set({isDocumentDone: true});
+            self.set({is_playback_complete: true});
         });
         this.smilplayer.setNotifyTextRender(function(src) {
-            self.set({currentTextUrl: src});
+            self.set({
+                current_text_document: stripFragment(src), 
+                current_text_fragment: getFragment(src)
+            });
         });
     },
-    
-    setPackageFile: function(url) {
-        this.packageUrl = url;
-        var self = this;
-        // TODO can we load this synchronously? doing it for now because it makes life easier.
-        $.ajax({
-            type: "GET",
-        	url: url,
-        	dataType: "xml",
-            async: false,
-        	success: function(xml) {
-                self.packageDocument = xml;
-        	}
-        });
+    // url: full path to a SMIL file
+    playFile: function(url) {
+        this.set({is_playback_complete: false});
+        this.smilplayer.playFile(url);        
     },
-    
-    playTextUrl: function(url) {
-        this.isDocumentDone = false;
-        smilUrl = MOUtils.lookupSmil(url, this.packageDocument);
-        fullSmilUrl = MOUtils.resolveUrl(smilUrl, this.packageUrl);
-        this.smilplayer.playFile(fullSmilUrl);        
-    },
-    
+    // pause the audio
     pause: function() {
         this.audioplayer.pause();
     },
-    
+    // resume audio where left off
     resume: function() {
         this.audioplayer.resume();
-    },
-    
-    updateIsPlaying: function() {
-        this.set({isPlaying: this.audioplayer.isPlaying()});
     }
-    
 });

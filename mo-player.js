@@ -1,102 +1,100 @@
 // loads and plays a single SMIL document
-SmilFilePlayer = function() {
-    var smiltree = null;
-    var audioRenderer = new AudioRenderer();
-    var smilUrl = null;
-    var notifySmilDoneCallback = null;
-    var notifyTextRenderCallback = null;
+MediaOverlaysModel = Backbone.Model.extend({
+    audioplayer: null,
+    smilModel: null,
+    smilUrl: null,
     
-    // URL is an absolute path to a SMIL document, optionally with a fragment offset
-    //TODO implement fragment offset
-    this.playFile = function(url) {
+    // observable properties
+    defaults: {
+        is_ready: false,
+        is_document_done: false,
+        is_playing: false,
+        should_highlight: true,
+        current_text_document: null,
+        current_text_fragment: null        
+    },
+    
+    initialize: function() {
         var self = this;
-        smilUrl = url;
-        $.ajax({
-            type: "GET",
-        	url: url,
-        	dataType: "xml",
-        	success: function(xml) {
-                notifyDataLoaded(xml);
-        	}
+        this.audioplayer = new AudioClipPlayer();
+
+        // always know whether we're playing or paused
+        this.audioplayer.setNotifyOnPause(function() {
+            self.set({is_playing: self.audioplayer.isPlaying()});
         });
-    };
-    this.getAudioPlayer = function() {
-        return audioRenderer.getAudioPlayer();
-    };
-    this.setNotifySmilDone = function(notifySmilDoneFn) {
-        notifySmilDoneCallback = notifySmilDoneFn;
-    };
-    this.setNotifyTextRender = function(notifyTextRenderFn) {
-        notifyTextRenderCallback = notifyTextRenderFn;
-    };
-    this.findNodeByTextSrc = function(src) {
-        return smiltree.findNodeByAttrValue("src", src);
-    };
-    this.loadFile = function(url, notifyIsLoadedFn) {
-        var self = this;
-        smilUrl = url;
-        $.ajax({
-            type: "GET",
-        	url: url,
-        	dataType: "xml",
-        	success: function(xml) {
-                notifyIsLoadedFn();
-        	}
+        this.audioplayer.setNotifyOnPlay(function(){
+           self.set({is_playing: self.audioplayer.isPlaying()});
         });
         
-    };
-    
-    function notifyDataLoaded (xml) {
-        var model = new SmilModel();
-        model.setUrl(smilUrl);
-        model.setNotifySmilDone(notifySmilDone);
-        // use inline functions to pass 'this' (which at runtime will be an xml node) to the renderer
-        model.addRenderers({
+    },
+    // load a file; must provide a 'url' option
+    fetch: function(options) {
+        this.set({is_ready: false});
+        this.smilUrl = options.url;
+        options || (options = {});
+        options.dataType="xml";
+        Backbone.Model.prototype.fetch.call(this, options);
+    },
+    // backbone fetch() callback
+    parse: function(xml) {
+        var self = this;
+        this.smilModel = new SmilModel();
+        this.smilModel.setUrl(this.smilUrl);
+        this.smilModel.setNotifySmilDone(function() {
+            self.set({is_document_done: true});
+        });
+        
+        // very important piece of code: attach render functions to the model
+        // at runtime, 'this' is the node in question
+        self.smilModel.addRenderers({
             "audio": function() {
-                    audioRenderer.render(this);
+                // have the audio player inform the node directly when it's done playing
+                var thisNode = this;
+                self.audioplayer.setNotifyClipDone(function() {
+                    thisNode.notifyChildDone();
+                });
+                // play the node
+                self.audioplayer.play($(this).attr("src"), $(this).attr("clipBegin"), $(this).attr("clipEnd"));
             }, 
             "text": function(){
                 var src = $(this).attr("src");
-                notifyTextRenderCallback(src);
+                // broadcast the text properties so that any listeners can do the right thing wrt loading/highlighting text
+                self.set({
+                    current_text_document: MOUtils.stripFragment(src), 
+                    current_text_fragment: MOUtils.getFragment(src)
+                });
             }
         });
+        
         // start the playback tree at <body>
-        smiltree = $(xml).find("body")[0]; 
-        model.build(smiltree);
-        smiltree.render();
-    }
-    
-    // gets called when the smil tree is done playing
-    function notifySmilDone() {
-        notifySmilDoneCallback();
-    }
-};
-
-
-// sends audio nodes to an AudioClipPlayer
-AudioRenderer = function() {
-    var audioplayer = new AudioClipPlayer;
-    var currentNode = null;
-    
-    audioplayer.setNotifyClipDone(notifyDone);
-    
-    this.render = function(node) {
-        ready = false;
-        currentNode = node;
-        audioplayer.play($(node).attr("src"), $(node).attr("clipBegin"), $(node).attr("clipEnd"));
-    };
-    this.getAudioPlayer = function() {
-        return audioplayer;
-    };
-    function notifyDone() {
-        if (currentNode != null) {
-            currentNode.notifyChildDone();
+        var smiltree = $(xml).find("body")[0]; 
+        self.smilModel.build(smiltree);
+        self.set({is_ready: true});
+    },
+    // start playback
+    // node is a SMIL node that indicates the starting point
+    // if node is null, playback starts at the beginning
+    play: function(node) {
+        this.set({is_document_done: false});
+        if (this.get("is_ready") == false) {
+            return;
         }
-    }
-};
+        this.smilModel.render(node);        
+    },
+    pause: function() {
+        this.audioplayer.pause();
+    },
+    resume: function() {
+        this.audioplayer.resume();        
+    },
+    findNodeByTextSrc: function(src) {
+        return this.smilModel.findNodeByAttrValue("text", "src", src);
+    }   
+});
 
-// SmilModel extends the XML DOM of a SMIL file by annotating it with playback functions
-// note that if the DOM becomes too heavy, we could use a custom lightweight tree instead
+// SmilModel both creates and plays the model
+// Right now, the model extends the SMIL XML DOM; 
+// if this becomes too heavy, we could use a custom lightweight tree instead
 SmilModel = function() {
     
     // these are playback logic functions for SMIL nodes
@@ -210,11 +208,29 @@ SmilModel = function() {
         notifySmilDone = fn;
     };
     
-    // main entry point
+    // build the model
+    // node is the root of the SMIL tree, for example the body node of the DOM
     this.build = function(node) {
         root = node;
         processTree(node);
     };
+    
+    // prepare the tree to start rendering from a node
+    this.render = function(node) {
+        if (node == null || node == root) {
+            // set the playback index to 0 on all the seqs
+            $(root).find("seq").playbackIndex = 0;   
+        }
+        else {
+            createPathToNode(node);
+        }
+        root.render();
+    };
+    
+    this.findNodeByAttrValue = function(nodename, attr, val) {
+        return $(root).find(nodename + "[" + attr + "='" + val + "']")[0];
+    };
+    
     
     // recursively process a SMIL XML DOM
     function processTree(node) {
@@ -258,13 +274,13 @@ SmilModel = function() {
     
     // make sure the attributes are to our liking
     function scrubAttributes(node) {
-        // resolve all srcs
-        if ($(node).attr("src") != undefined) {
-            $(node).attr("src", MOUtils.resolveUrl($(node).attr("src"), url));
-        }
+        // TODO do we need to resolve the text srcs too, or does Readium want relative paths?
         
         // process audio nodes' clock values
         if (node.tagName == "audio") {
+            if ($(node).attr("src") != undefined) {
+                $(node).attr("src", MOUtils.resolveUrl($(node).attr("src"), url));
+            }    
             if ($(node).attr("clipBegin") != undefined) {
                 $(node).attr("clipBegin", MOUtils.resolveClockValue($(node).attr("clipBegin")));
             }
@@ -292,14 +308,14 @@ SmilModel = function() {
         if (node.parentNode.tagName == "par") {
             createPathToNode(node.parentNode);
         }
-        else if (node.parentNode.tagName == "seq") {
-            if (!node.hasOwnProperty("nodeIndex")) {
+        else if (node.parentNode.tagName == "seq" || node.parentNode.tagName == "body") {
+            if (node.hasOwnProperty("nodeIndex") == false) {
                 // find the node's position amongst its siblings and save this info to make future searches a bit faster
-                int idx = 0;
-                $.each(seq.childNodes, function(i, val) {
+                var idx = 0;
+                $.each(node.parentNode.childNodes, function(i, val) {
                     if (val == node) {
                         node.nodeIndex = idx;
-                        break;
+                        return false;
                     }
                     else
                     {
@@ -313,10 +329,6 @@ SmilModel = function() {
             node.parentNode.playbackIndex = node.nodeIndex;
             createPathToNode(node.parentNode);
         }
-    }
-    
-    function findNodeByAttrValue(attr, val) {
-        return $(root).find("text[" + attr + "='" + val + "'])";
     }
 };
 

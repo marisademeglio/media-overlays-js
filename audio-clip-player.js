@@ -5,19 +5,26 @@ AudioClipPlayer = function() {
     var clipEnd = null;
     var elm = new Audio();
     var notifyClipDone = null;
-    var notifyDebugPrint = null;
     var consoleTrace = false;
+    // the audio clip boundary margin
+    var margin = .011;
+    var infocus = true;
+    var intervalId = null;
     
     this.setNotifyClipDone = function(notifyClipDoneFn) {
         notifyClipDone = notifyClipDoneFn;
     };
-    // useful for having the calling page print things in the browser.
-    this.setNotifyDebugPrint = function(notifyDebugPrintFn) {
-        notifyDebugPrint = notifyDebugPrintFn;
-    };
-    
     this.setConsoleTrace =  function(isOn) {
         consoleTrace = isOn;
+    };
+    
+    // use this setting for more precise synchronization
+    this.useNarrowClipMargin = function() {
+        margin = .011;
+    };
+    // use this setting to relax the synchronization a bit, for example if the window goes into the background and setInterval doesn't fire as often
+    this.useWideClipMargin = function() {
+        margin = 1;
     };
     
     // clipBeginTime and clipEndTime are in seconds
@@ -68,6 +75,23 @@ AudioClipPlayer = function() {
         elm.addEventListener("play", function() {
             notifyOnPlay();
         });
+    };
+    
+    this.getCurrentTime = function() {
+        if (elm != null) {
+            return elm.currentTime;
+        }
+        return 0;
+    };
+    this.getCurrentSrc = function() {
+        return src;
+    };
+    
+    // this is necessary in case we lost our place in the file due to setInterval timing problems
+    this.updateTimer = function(clipBeginTime, clipEndTime) {
+        clipBegin = clipBeginTime;
+        clipEnd = clipEndTime;
+        startClipTimer();
     }
     
     function loadData(){
@@ -77,69 +101,61 @@ AudioClipPlayer = function() {
         // wait for 'canplay' before continuing
         elm.addEventListener("canplay", setThisTime);
         function setThisTime() {
-            debugPrint("canplay event fired");
             elm.removeEventListener("canplay", setThisTime);
-            continueLoadData();        
-        }
-    }
-    
-    function continueLoadData() {
-        // TODO put something in here for remote files to make sure the file is buffered
+            // TODO put something in here for remote files to make sure the file is buffered
         
-        if (clipEnd > elm.duration) {
-            debugPrint("File is shorter than specified clipEnd time");
-            clipEnd = elm.duration;
+            if (clipEnd > elm.duration) {
+                debugPrint("File is shorter than specified clipEnd time");
+                clipEnd = elm.duration;
+            }
+            debugPrint("Audio data loaded");
+            continueRender();        
         }
-        debugPrint("Audio data loaded");
-        continueRender();
     }
     
     function continueRender() {
-        var duration = clipEnd - clipBegin;
-        
-        if (elm.currentTime != clipBegin) {
+        // be a bit flexible because otherwise you hear a bit of a glitch when you initially move the currentTime counter
+        if (elm.currentTime < clipBegin - margin || elm.currentTime > clipEnd + margin) {
             elm.addEventListener("seeked", seeked);
+            console.log("setting currentTime from " + elm.currentTime + "to " + clipBegin);
             elm.currentTime = clipBegin;
             function seeked() {
                 elm.removeEventListener("seeked", seeked);
-                playElement(duration);
+                startClipTimer();
+                elm.play();
+                
             }
         }
         else {
-            playElement(duration);
+            startClipTimer();
+            elm.play();
+            
         }      
     }
     
-    function playElement(duration) {
+    function startClipTimer() {
+        
+        // cancel the old timer, if any
+        if (intervalId != null) {
+            clearInterval(intervalId);
+        }
+        
         // we're using setInterval instead of monitoring the timeupdate event because timeupdate fires, at best, every 200ms, which messes up playback of short phrases.
         // 11ms seems to be chrome's finest allowed granularity for setInterval (and this is for when the tab is active; otherwise it fires about every second)
-        var intervalId = setInterval(function() {
+        intervalId = setInterval(function() {
             if (elm.currentTime >= clipEnd) {
                 clearInterval(intervalId);
-                stopElement();
+                debugPrint("clip done");
+                if (notifyClipDone != null) {
+                    notifyClipDone();
+                }
             }
-        }, 11);
-        elm.play();
-    }
-    
-    function stopElement() {
-        // experiment with not pausing the element at the end of a clip. when the next clip plays, it will set currentTime to where it needs to be.
-        // if we pause in between, it doesn't really accomplish anything, and make any listening UI look funny with play/pause toggling all the time.
-        //elm.pause();
-        debugPrint("clip done");
-        // call the callback
-        if (notifyClipDone != null) {
-            notifyClipDone();
-        }
+        }, 11);   
     }
     
     function debugPrint(str) {
-        if (consoleTrace == true) {
+        if (consoleTrace) {
             console.log(str);
-        }
-        // call the callback
-        if (notifyDebugPrint != null) {
-            notifyDebugPrint(str);
         }
     }
 };
