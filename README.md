@@ -12,7 +12,7 @@ Status:
  * jump-to-position doesn't work reliably while playing
  * highlighting messed up after using jump-to-position
  * audio sync won't work perfectly when the Chrome tab is in the background. [Read more](https://github.com/marisademeglio/media-overlays-js/wiki/audio#wiki-issue) about audio.
- * not yet implemented: see [future additions](#FutureAdditions)
+ * not yet implemented: see [future additions](#future-additions)
 
 # Run test
 
