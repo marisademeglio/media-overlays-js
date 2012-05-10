@@ -36,7 +36,7 @@ Navigate to http://localhost:4000/mo-player.html and press "play"
 
 # Approach to SMIL playback
 
-See smil-player.js
+See SmilModel in mo-player.js 
 
 Parse a single SMIL file and annotate the XML DOM as follows:
 
@@ -46,17 +46,17 @@ Node.render = function to render that node
 (All nodes)
 Node.notifyChildDone = function called when the node's child is done rendering
 
-(Body and Seq nodes only)
-Node.playbackIndex = index of the currently-playing child node
-
 The SMIL tree plays itself, calling
 
     root->render
 
 which in turn renders its children.
 
-Media nodes are hooked up to renderers for text display and audio clip playback.
+All nodes are hooked up to renderers to manage how they should be played.
 
-Time container nodes (e.g. seq, par, body) are hooked up to internal renderers to manage playback of their child nodes.  For example, seq and body nodes render their children in sequence (often a sequence of pars) whereas par nodes render their children in parallel (e.g. this text with this audio).
+ * Audio nodes trigger the audio clip player
+ * Text node @srcs get broadcast via observable properties
+ * Seq and body nodes render by calling their children's render functions in sequence 
+ * Par nodes render their children in parallel (e.g. this text with this audio).
 
 When a node is done playing, it must notify its parent via the Node.notifyChildDone method.  This method is also used to communicate from the audio clip player to the audio node that owns that clip.
