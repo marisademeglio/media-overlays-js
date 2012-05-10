@@ -10,7 +10,7 @@ See [the API](https://github.com/marisademeglio/media-overlays-js/wiki/api) for 
 Status: 
 
  * jump-to-position doesn't work reliably if you are already beyond the target point
- * highlights don't get unhighlighted
+ * highlights don't get unhighlighted (though this is not a problem with the MO implementation but rather the lame front end)
  * audio sync won't work perfectly when the Chrome tab is in the background. [Read more](https://github.com/marisademeglio/media-overlays-js/wiki/audio#wiki-issue) about audio.
  * not yet implemented: see [future additions](#future-additions)
 
