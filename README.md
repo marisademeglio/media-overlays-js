@@ -52,7 +52,7 @@ The SMIL tree plays itself, calling
 
 which in turn renders its children.
 
-All nodes are hooked up to renderers to manage how they should be played.
+All nodes are hooked up to renderers to manage how they should be played.  Each node's render function is described briefly below.
 
  * Audio nodes trigger the audio clip player
  * Text node @srcs get broadcast via observable properties
