@@ -9,8 +9,8 @@ See [the API](https://github.com/marisademeglio/media-overlays-js/wiki/api) for 
 
 Status: 
 
- * jump-to-position doesn't work reliably while playing
- * highlighting messed up after using jump-to-position
+ * jump-to-position doesn't work reliably if you are already beyond the target point
+ * highlights don't get unhighlighted
  * audio sync won't work perfectly when the Chrome tab is in the background. [Read more](https://github.com/marisademeglio/media-overlays-js/wiki/audio#wiki-issue) about audio.
  * not yet implemented: see [future additions](#future-additions)
 
@@ -32,7 +32,7 @@ Navigate to http://localhost:4000/mo-player.html and press "play"
 
  * Skippability
  * Escapability
- * Integrity check for out of focus tabs
+ * Audio playback optimization
 
 # Approach to SMIL playback
 
