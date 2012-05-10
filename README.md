@@ -32,7 +32,6 @@ Navigate to http://localhost:4000/mo-player.html and press "play"
 
  * Skippability
  * Escapability
- * Audio playback optimization
 
 # Approach to SMIL playback
 
@@ -40,17 +39,18 @@ See SmilModel in mo-player.js
 
 Parse a single SMIL file and annotate the XML DOM as follows:
 
-(All nodes)
-Node.render = function to render that node
-
-(All nodes)
-Node.notifyChildDone = function called when the node's child is done rendering
+ * Node.render = function to render that node
+ * Node.notifyChildDone = function called when the node's child is done rendering
 
 The SMIL tree plays itself, calling
 
     root->render
 
 which in turn renders its children.
+
+The tree may be played starting from any node by simply calling 
+
+    node->render
 
 All nodes are hooked up to renderers to manage how they should be played.  Each node's render function is described briefly below.
 
