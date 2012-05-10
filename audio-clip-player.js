@@ -7,9 +7,10 @@ AudioClipPlayer = function() {
     var notifyClipDone = null;
     var consoleTrace = false;
     // the audio clip boundary margin
-    var margin = .011;
+    var margin = .150;
     var infocus = true;
     var intervalId = null;
+    var playThrough = false;
     
     this.setNotifyClipDone = function(notifyClipDoneFn) {
         notifyClipDone = notifyClipDoneFn;
@@ -19,20 +20,21 @@ AudioClipPlayer = function() {
     };
     
     // use this setting for more precise synchronization
-    this.useNarrowClipMargin = function() {
-        margin = .011;
-    };
+    /*this.useNarrowClipMargin = function() {
+        margin = .100;
+    };*/
     // use this setting to relax the synchronization a bit, for example if the window goes into the background and setInterval doesn't fire as often
-    this.useWideClipMargin = function() {
+    /*this.useWideClipMargin = function() {
         margin = 1;
-    };
+    };*/
     
     // clipBeginTime and clipEndTime are in seconds
     // filesrc is an absolute path, local or remote
-    this.play = function(filesrc, clipBeginTime, clipEndTime) {
+    this.play = function(filesrc, clipBeginTime, clipEndTime, shouldPlayThrough) {
         src = filesrc;
         clipBegin = clipBeginTime;
         clipEnd = clipEndTime;
+        playThrough = shouldPlayThrough;
         
         debugPrint("playing " + src + " from " + clipBegin + " to " + clipEnd);
         
@@ -111,11 +113,21 @@ AudioClipPlayer = function() {
             debugPrint("Audio data loaded");
             continueRender();        
         }
+        
+        elm.addEventListener("ended", function() {
+            // cancel the timer, if any
+            if (intervalId != null) {
+                clearInterval(intervalId);
+            }
+            if (notifyClipDone != null) {
+                notifyClipDone();
+            }
+        });
     }
     
     function continueRender() {
         // be a bit flexible because otherwise you hear a bit of a glitch when you initially move the currentTime counter
-        if (elm.currentTime < clipBegin - margin || elm.currentTime > clipEnd + margin) {
+        if (elm.currentTime < clipBegin - margin || elm.currentTime > clipBegin + margin) {
             elm.addEventListener("seeked", seeked);
             console.log("setting currentTime from " + elm.currentTime + "to " + clipBegin);
             elm.currentTime = clipBegin;
@@ -123,13 +135,11 @@ AudioClipPlayer = function() {
                 elm.removeEventListener("seeked", seeked);
                 startClipTimer();
                 elm.play();
-                
             }
         }
         else {
             startClipTimer();
             elm.play();
-            
         }      
     }
     
@@ -146,6 +156,10 @@ AudioClipPlayer = function() {
             if (elm.currentTime >= clipEnd) {
                 clearInterval(intervalId);
                 debugPrint("clip done");
+                // if we shouldn't play through, then pause the element and wait for our next instruction
+                if (playThrough == false) {
+                    elm.pause();
+                }
                 if (notifyClipDone != null) {
                     notifyClipDone();
                 }

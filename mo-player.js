@@ -10,14 +10,15 @@ MediaOverlaysModel = Backbone.Model.extend({
         is_document_done: false,
         is_playing: false,
         should_highlight: true,
-        current_text_document: null,
-        current_text_fragment: null        
+        current_text_document_url: null,
+        current_text_element_id: null        
     },
     
     initialize: function() {
         var self = this;
         this.audioplayer = new AudioClipPlayer();
-
+        this.audioplayer.setConsoleTrace(true);
+        
         // always know whether we're playing or paused
         this.audioplayer.setNotifyOnPause(function() {
             self.set({is_playing: self.audioplayer.isPlaying()});
@@ -46,30 +47,39 @@ MediaOverlaysModel = Backbone.Model.extend({
         
         // very important piece of code: attach render functions to the model
         // at runtime, 'this' is the node in question
-        self.smilModel.addRenderers({
+        this.smilModel.addRenderers({
             "audio": function() {
                 // have the audio player inform the node directly when it's done playing
                 var thisNode = this;
                 self.audioplayer.setNotifyClipDone(function() {
                     thisNode.notifyChildDone();
                 });
+                var nextNode = self.smilModel.peekNextAudio(this);
+                var nextCB = $(nextNode).attr("clipBegin");
+                var thisCE = $(this).attr("clipEnd");
+                var playThrough = false;
+                // if the next clip starts within a few milliseconds of this clip's end, then tell the audio player to just keep playing
+                if (nextCB >= thisCE && nextCB <= thisCE + .050) {
+                    playThrough = true;
+                }
                 // play the node
-                self.audioplayer.play($(this).attr("src"), $(this).attr("clipBegin"), $(this).attr("clipEnd"));
+                // TODO 
+                self.audioplayer.play($(this).attr("src"), parseFloat($(this).attr("clipBegin")), parseFloat($(this).attr("clipEnd")), playThrough);
             }, 
             "text": function(){
                 var src = $(this).attr("src");
                 // broadcast the text properties so that any listeners can do the right thing wrt loading/highlighting text
                 self.set({
-                    current_text_document: MOUtils.stripFragment(src), 
-                    current_text_fragment: MOUtils.getFragment(src)
+                    current_text_document_url: MOUtils.stripFragment(src), 
+                    current_text_element_id: MOUtils.getFragment(src)
                 });
             }
         });
         
         // start the playback tree at <body>
         var smiltree = $(xml).find("body")[0]; 
-        self.smilModel.build(smiltree);
-        self.set({is_ready: true});
+        this.smilModel.build(smiltree);
+        this.set({is_ready: true});
     },
     // start playback
     // node is a SMIL node that indicates the starting point
@@ -106,36 +116,21 @@ SmilModel = function() {
     NodeLogic = {
         
         parRender: function() {
+            currentPar = this;
             $.each(this.childNodes, function(index, value) {
                 if (value.hasOwnProperty("render")) {
                     value.render();
-                } 
+                }
             });
         },
     
-        seqRender: function() {
-            var idx = this.playbackIndex;
-            
-            // we have to test for this here as well as in seqNotifyChildDone
-            // because the index could have been increased for nodes that aren't being played (e.g. xml text nodes)
-            if (idx >= this.childNodes.length - 1) {
-                // the top of our playback tree is <body>, not <smil>
-                if (this.parentNode != null && this.parentNode.tagName != "smil") {
-                    this.parentNode.notifyChildDone(this);
-                }
-                else {
-                    notifySmilDone();
-                }                
+        // render starting at the given node; if null, start at the beginning
+        seqRender: function(node) {
+            if (node == null) {
+                this.firstElementChild.render();
             }
             else {
-                if (this.childNodes[idx].hasOwnProperty("render")) {
-                    this.childNodes[idx].render();
-                }
-                // some child nodes, e.g. xml text nodes, won't have a 'render' property, so we can skip them
-                else {
-                    this.playbackIndex++;
-                    this.render();
-                }
+                node.render();
             }
         },
     
@@ -156,20 +151,17 @@ SmilModel = function() {
     
         // receive notice that a child node has finished playing
         seqNotifyChildDone: function(node) {
-            var idx = this.playbackIndex;
-            if (idx >= this.childNodes.length - 1) {
-                // the top of our playback tree is <body>, not <smil>
-                if (this.parentNode != null && this.parentNode.tagName != "smil") {
-                    this.parentNode.notifyChildDone(this);
+            if (node.nextElementSibling == null) {
+                if (this == root) {
+                    notifySmilDone();
                 }
                 else {
-                    notifySmilDone();
+                    this.parentNode.notifyChildDone(this);
                 }
             }
             else {
                 // prepare to play the next child node
-                this.playbackIndex++;
-                this.render();
+                this.render(node.nextElementSibling);
             }
         }
     };
@@ -212,25 +204,38 @@ SmilModel = function() {
     // node is the root of the SMIL tree, for example the body node of the DOM
     this.build = function(node) {
         root = node;
-        processTree(node);
+        //removeTextNodes(node);
+        processTree(node, 0);
     };
     
     // prepare the tree to start rendering from a node
     this.render = function(node) {
         if (node == null || node == root) {
-            // set the playback index to 0 on all the seqs
-            $(root).find("seq").playbackIndex = 0;   
+            root.render(null);
         }
         else {
-            createPathToNode(node);
+            node.parentNode.render(node);
         }
-        root.render();
     };
     
     this.findNodeByAttrValue = function(nodename, attr, val) {
         return $(root).find(nodename + "[" + attr + "='" + val + "']")[0];
     };
     
+    // see what the next audio node is going to be
+    // TODO take skippability into consideration
+    this.peekNextAudio = function(audioNode) {
+        var node = audioNode.parentNode;
+        // go up the tree until we find a relative
+        while(node.nextElementSibling == null) {
+            node = node.parentNode;
+            if (node == root) {
+                return null;
+            }
+        }
+        // find the first audio node
+        return $(node.nextElementSibling).find("audio")[0];
+    };
     
     // recursively process a SMIL XML DOM
     function processTree(node) {
@@ -240,19 +245,19 @@ SmilModel = function() {
                 processTree(val);
             });
         }
-    };       
+    }       
     
     // process a single node and attach render and notify functions to it
     function processNode(node) {
         // add a toString method for debugging
         node.toString = function() {
-        	var string = "<" + this.nodeName;
+            var string = "<" + this.nodeName;
         	for (var i = 0; i < this.attributes.length; i++) {
         		string += " " + this.attributes.item(i).nodeName + "=" + this.attributes.item(i).nodeValue;
         	}
         	string += ">";
-        	return string;
-        }
+            return string;
+        };
         
         // connect the appropriate renderer
         if (renderers.hasOwnProperty(node.tagName)) {
@@ -265,11 +270,6 @@ SmilModel = function() {
         }
         
         scrubAttributes(node);
-        
-        // one bit of non-tagname-agnostic code in here
-        if (node.tagName == "seq" || node.tagName == "body") {
-            node.playbackIndex = 0;
-        }
     }
     
     // make sure the attributes are to our liking
@@ -297,39 +297,38 @@ SmilModel = function() {
         }
     }
     
-    function createPathToNode(node) {
-        // go from the node to the top of the tree and make sure the playbackIndex on the seqs points to the right child
-        
-        // top of the tree
-        if (node.tagName == "body") {
-            return;
+    // remove the non-element nodes from the tree
+    // these nodes are not used in SMIL and are likely just whitespace garbage
+    // it's a little funky traversing a tree while removing nodes, so for now, we are doing this as a separate visit
+    // rather than during our other processing. 
+    function removeTextNodes(node) {
+        if (node.nodeType != node.ELEMENT_NODE) {
+            node.parentNode.removeChild(node);
+            return true;
         }
-        
-        if (node.parentNode.tagName == "par") {
-            createPathToNode(node.parentNode);
-        }
-        else if (node.parentNode.tagName == "seq" || node.parentNode.tagName == "body") {
-            if (node.hasOwnProperty("nodeIndex") == false) {
-                // find the node's position amongst its siblings and save this info to make future searches a bit faster
-                var idx = 0;
-                $.each(node.parentNode.childNodes, function(i, val) {
-                    if (val == node) {
-                        node.nodeIndex = idx;
-                        return false;
-                    }
-                    else
-                    {
-                        // just count the non-text-node nodes
-                        if (val.nodeType == val.ELEMENT_NODE) {
-                            idx++;
-                        } 
-                    }
-                });
+        else {
+            var len = node.childNodes.length;
+            var idx = 0;
+            for (var i = 0; i<len; i++) {
+                var wasRemoved = removeTextNodes(node.childNodes[idx]);
+                // stop if we're at the last one
+                if (idx == node.childNodes.length -1) {
+                    break;
+                }
+                if (wasRemoved == false) {
+                    // increment the counter if we haven't removed anything from childNodes
+                    idx++; 
+                }
             }
-            node.parentNode.playbackIndex = node.nodeIndex;
-            createPathToNode(node.parentNode);
+            return false;
         }
     }
+    
+    // in the future, this will act as a skippability filter
+    function canPlaySeq(node) {
+        return true;
+    }
+    
 };
 
 

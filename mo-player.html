@@ -11,7 +11,9 @@
         <script src="mo-player.js"></script>
         <script>
         
-        SMIL_URL = "http://localhost:4000/testdata/valentin/epub/Publication/Content/valentinhauy.smil";
+        //SMIL_URL = "http://localhost:4000/testdata/valentin/epub/Publication/Content/valentinhauy.smil";
+        SMIL_URL = "http://localhost:4000/testdata/numbers/numbers.smil";
+        //SMIL_URL = "http://localhost:4000/testdata/alphabet/alphabet.smil";
         RANDOM_TEXT_SRC = "valentinhauy.xhtml#rgn_cnt_0116";
         
         $(document).ready(function() {
@@ -96,8 +98,8 @@
             
             initialize: function() {
                 var self = this;
-                this.model.bind('change:current_text_document', function() {self.loadText()});
-                this.model.bind('change:current_text_fragment', function() {self.highlight()});
+                this.model.bind('change:current_text_document_url', function() {self.loadText()});
+                this.model.bind('change:current_text_element_id', function() {self.highlight()});
                 this.model.bind('change:is_document_done', function() {
                     if (self.model.get("is_document_done")) {
                         console.log("document is done")
@@ -106,7 +108,7 @@
             },
            
            loadText: function() {
-               var textdoc = this.model.get("current_text_document");
+               var textdoc = this.model.get("current_text_document_url");
                var fullurl = MOUtils.resolveUrl(textdoc, SMIL_URL);
                if ($("#textarea").attr("src") != fullurl) {
                     $("#textarea").attr("src", MOUtils.resolveUrl(textdoc, SMIL_URL));
@@ -115,12 +117,14 @@
            
            // highlight the new ID and unhighlight the old one
            // the right way to manage highlighting is to use toggleClass, but for some reason, that's not working in this iframe...
+           // and for this demo, it's not really crucial to get it right.  this is just an example of how you could listen to the text element ID changing.
            highlight: function() {
-               var id = this.model.get("current_text_fragment");
+               var id = this.model.get("current_text_element_id");
                if (this.model.get("should_highlight")) {
                    if (this.lastid != null) {
                        // undo the background color change
                        // getTextElm(this.lastid).toggleClass("highlight");
+                       // this works when you do it manually via js command line but not at runtime ... what's going on?
                        getTextElm(this.lastid).css("background-color", "");
                    }
                    var elm = getTextElm(id);

@@ -4,8 +4,8 @@
 MediaOverlaysModel = Backbone.Model.extend({
     
     defaults: {
-        current_text_document: null,
-        current_text_fragment: null,
+        current_text_document_url: null,
+        current_text_element_id: null,
         is_playing: false,
         should_highlight: true,
         is_playback_complete: false,
@@ -33,8 +33,8 @@ MediaOverlaysModel = Backbone.Model.extend({
         });
         this.smilplayer.setNotifyTextRender(function(src) {
             self.set({
-                current_text_document: stripFragment(src), 
-                current_text_fragment: getFragment(src)
+                current_text_document_url: stripFragment(src), 
+                current_text_element_id: getFragment(src)
             });
         });
     },

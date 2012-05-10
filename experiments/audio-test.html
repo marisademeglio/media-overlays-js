@@ -67,7 +67,17 @@
                 if (ready) {
                     ready = false;
                     // baseurl and clips are from *-clips.js, included at the top
-                    audioplayer.play(baseurl + clips[idx][0], clips[idx][1], clips[idx][2]);
+                    var playThrough = false;
+                    if (idx + 1 < clips.length) {
+                        // if the next clip has the same src as the current clip, and
+                        // the next clip starts within 100ms of this clip
+                        // then tell the audio player to play continuously
+                        if (clips[idx+1][0] == clips[idx][0] &&
+                            clips[idx+1][1] < clips[idx][2] + .100) {
+                            playThrough = true;
+                        }
+                    }
+                    audioplayer.play(baseurl + clips[idx][0], clips[idx][1], clips[idx][2], playThrough);
                     debugPrint(clips[idx][3]);
                 }
                 else {
@@ -92,14 +102,14 @@
             // used for checking clip playback status, goes down to once per second when the window is out of focus
             window.addEventListener('focus', function() {
                 infocus = true;
-                audioplayer.useNarrowClipMargin();
+                //audioplayer.useNarrowClipMargin();
                 if (audioplayer.isPlaying()) {
                     integrityCheck();                    
                 }
                 
             });
             window.addEventListener('blur', function() {
-                audioplayer.useWideClipMargin();
+                //audioplayer.useWideClipMargin();
                 infocus = false;
             });
     
@@ -143,8 +153,6 @@
                         else {
                             console.log("out of range; probably at last clip");
                         }
-                        
-                                              
                     }
                 }
             }
