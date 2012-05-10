@@ -1,16 +1,27 @@
 AudioClipPlayer = function() {
     
+    // clip info
     var src = null;
     var clipBegin = null;
     var clipEnd = null;
-    var elm = new Audio();
-    var notifyClipDone = null;
-    var consoleTrace = false;
-    // the audio clip boundary margin
-    var margin = .150;
-    var infocus = true;
-    var intervalId = null;
+    
+    // true = keep playing the file; false = pause when clip is done
     var playThrough = false;
+    
+    // force the clip to reset its start time
+    var forceReset = false;
+    
+    // the html audio element created to hold whatever the current file is
+    var elm = new Audio();
+    
+    // callback function
+    var notifyClipDone = null;
+    
+    // send debug statements to the console
+    var consoleTrace = false;
+    
+    // ID of the setInterval timer
+    var intervalId = null;
     
     this.setNotifyClipDone = function(notifyClipDoneFn) {
         notifyClipDone = notifyClipDoneFn;
@@ -19,22 +30,14 @@ AudioClipPlayer = function() {
         consoleTrace = isOn;
     };
     
-    // use this setting for more precise synchronization
-    /*this.useNarrowClipMargin = function() {
-        margin = .100;
-    };*/
-    // use this setting to relax the synchronization a bit, for example if the window goes into the background and setInterval doesn't fire as often
-    /*this.useWideClipMargin = function() {
-        margin = 1;
-    };*/
-    
     // clipBeginTime and clipEndTime are in seconds
     // filesrc is an absolute path, local or remote
-    this.play = function(filesrc, clipBeginTime, clipEndTime, shouldPlayThrough) {
+    this.play = function(filesrc, clipBeginTime, clipEndTime, shouldPlayThrough, shouldForceReset) {
         src = filesrc;
         clipBegin = clipBeginTime;
         clipEnd = clipEndTime;
         playThrough = shouldPlayThrough;
+        forceReset = shouldForceReset;
         
         debugPrint("playing " + src + " from " + clipBegin + " to " + clipEnd);
         
@@ -89,13 +92,6 @@ AudioClipPlayer = function() {
         return src;
     };
     
-    // this is necessary in case we lost our place in the file due to setInterval timing problems
-    this.updateTimer = function(clipBeginTime, clipEndTime) {
-        clipBegin = clipBeginTime;
-        clipEnd = clipEndTime;
-        startClipTimer();
-    }
-    
     function loadData(){
         debugPrint("Loading file " + src);
         elm.setAttribute("src", src);
@@ -126,8 +122,12 @@ AudioClipPlayer = function() {
     }
     
     function continueRender() {
-        // be a bit flexible because otherwise you hear a bit of a glitch when you initially move the currentTime counter
-        if (elm.currentTime < clipBegin - margin || elm.currentTime > clipBegin + margin) {
+        // if the current time is already somewhere within the clip that we want to play, then just let it keep playing
+        if (forceReset == false && elm.currentTime > clipBegin && elm.currentTime < clipEnd) {
+            startClipTimer();
+            elm.play();    
+        }
+        else {
             elm.addEventListener("seeked", seeked);
             console.log("setting currentTime from " + elm.currentTime + "to " + clipBegin);
             elm.currentTime = clipBegin;
@@ -137,10 +137,6 @@ AudioClipPlayer = function() {
                 elm.play();
             }
         }
-        else {
-            startClipTimer();
-            elm.play();
-        }      
     }
     
     function startClipTimer() {

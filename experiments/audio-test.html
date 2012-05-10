@@ -46,21 +46,12 @@
             };
             
             function notifyDone() {
-                if (infocus) {
-                    idx++;
-                    if (idx >= clips.length) {
-                       return;
-                    }
-                    ready = true;
-                    play();
+                idx++;
+                if (idx >= clips.length) {
+                   return;
                 }
-                else {
-                    // if the tab is not in focus, then the audio clip granularity isn't very good, so 
-                    // update our index based on the audio player position
-                    // this should happen about once per second
-                    integrityCheck();
-                }
-                
+                ready = true;
+                play();
             }
             
             function play() {
@@ -69,12 +60,18 @@
                     // baseurl and clips are from *-clips.js, included at the top
                     var playThrough = false;
                     if (idx + 1 < clips.length) {
-                        // if the next clip has the same src as the current clip, and
-                        // the next clip starts within 100ms of this clip
-                        // then tell the audio player to play continuously
-                        if (clips[idx+1][0] == clips[idx][0] &&
-                            clips[idx+1][1] < clips[idx][2] + .100) {
-                            playThrough = true;
+                        var currentclip = clips[idx];
+                        var nextclip = clips[idx + 1];
+                        var currentclipEnd = currentclip[2];
+                        var nextclipBegin = nextclip[1];
+                        if (
+                            // if 1. the srcs are the same
+                            currentclip[0] == nextclip[0] &&
+                            // and 2. the space between them is narrow
+                            nextclipBegin < currentclipEnd + .100) {
+                                
+                                // then tell the audio player to play continuously
+                                playThrough = true;
                         }
                     }
                     audioplayer.play(baseurl + clips[idx][0], clips[idx][1], clips[idx][2], playThrough);
@@ -101,21 +98,15 @@
             // we might not have been receiving end of clip events because setInterval, 
             // used for checking clip playback status, goes down to once per second when the window is out of focus
             window.addEventListener('focus', function() {
-                infocus = true;
-                //audioplayer.useNarrowClipMargin();
                 if (audioplayer.isPlaying()) {
-                    integrityCheck();                    
+                   // integrityCheck();                    
                 }
                 
             });
-            window.addEventListener('blur', function() {
-                //audioplayer.useWideClipMargin();
-                infocus = false;
-            });
     
     
-            // update the index based on where the audio is; also, make sure the audio is in the right spot
-            // this is a workaround to the problem of inactive tabs limiting setInterval to checking every second
+            // update the index based on where the audio is
+            // this isn't being used at the moment as it doesn't seem necessary after the introduction of the playThrough attribute
             function integrityCheck() {
                 console.log("performing integrity check");
                 var currentTime = audioplayer.getCurrentTime();
@@ -134,7 +125,6 @@
                         }
                     }
                     if (found) {
-                        // catchup is just an implementation detail of this particular test
                         catchup(i);
                         console.log("catching up to index " + i);
                         idx = i;  
@@ -157,6 +147,7 @@
                 }
             }
             
+            // catchup is just an implementation detail of this particular test
             // display all the text between the current point and the index
             function catchup(index) {
                 for (var i = idx+1; i<=index; i++) {

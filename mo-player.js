@@ -55,16 +55,24 @@ MediaOverlaysModel = Backbone.Model.extend({
                     thisNode.notifyChildDone();
                 });
                 var nextNode = self.smilModel.peekNextAudio(this);
+                var nextSrc = $(nextNode).attr("src");
+                var thisSrc = $(this).attr("src");
                 var nextCB = $(nextNode).attr("clipBegin");
                 var thisCE = $(this).attr("clipEnd");
                 var playThrough = false;
-                // if the next clip starts within a few milliseconds of this clip's end, then tell the audio player to just keep playing
-                if (nextCB >= thisCE && nextCB <= thisCE + .050) {
+                var isJumpTarget = false;
+                if (this.hasOwnProperty("isJumpTarget")) {
+                    isJumpTarget = this.isJumpTarget;
+                    // reset the node's property
+                    this.isJumpTarget = false;
+                }
+                // if the clips are in the same file, and the next clip starts within a few milliseconds of this clip's end:
+                // then tell the audio player to just keep playing
+                if (nextSrc == thisSrc && nextCB >= thisCE && nextCB <= thisCE + .050) {
                     playThrough = true;
                 }
                 // play the node
-                // TODO 
-                self.audioplayer.play($(this).attr("src"), parseFloat($(this).attr("clipBegin")), parseFloat($(this).attr("clipEnd")), playThrough);
+                self.audioplayer.play($(this).attr("src"), parseFloat($(this).attr("clipBegin")), parseFloat($(this).attr("clipEnd")), playThrough, isJumpTarget);
             }, 
             "text": function(){
                 var src = $(this).attr("src");
@@ -116,7 +124,6 @@ SmilModel = function() {
     NodeLogic = {
         
         parRender: function() {
-            currentPar = this;
             $.each(this.childNodes, function(index, value) {
                 if (value.hasOwnProperty("render")) {
                     value.render();
@@ -214,6 +221,10 @@ SmilModel = function() {
             root.render(null);
         }
         else {
+            // if we're jumping to a point in the middle of the tree, then mark the first audio clip as a jump target
+            // because it affects audio playback
+            var audioNode = this.peekNextAudio(node);
+            audioNode.isJumpTarget = true;
             node.parentNode.render(node);
         }
     };
@@ -224,8 +235,20 @@ SmilModel = function() {
     
     // see what the next audio node is going to be
     // TODO take skippability into consideration
-    this.peekNextAudio = function(audioNode) {
-        var node = audioNode.parentNode;
+    this.peekNextAudio = function(currentNode) {
+        
+        // these first 2 cases are arguably just here for convenience: if we're near an audio node, then return it
+        // TODO this does not consider that audio elements are actually optional children of <par>
+        if (currentNode.tagName == "par") {
+            return $(currentNode).find("audio")[0];
+        }
+        // TODO same as above
+        if (currentNode.tagName == "text") {
+            return $(currentNode.parentNode).find("audio")[0];
+        }
+        
+        // if we aren't near an audio node, then keep looking
+        var node = currentNode.parentNode;
         // go up the tree until we find a relative
         while(node.nextElementSibling == null) {
             node = node.parentNode;
@@ -325,7 +348,7 @@ SmilModel = function() {
     }
     
     // in the future, this will act as a skippability filter
-    function canPlaySeq(node) {
+    function canPlayNode(node) {
         return true;
     }
     
