@@ -11,12 +11,12 @@
       <dc:creator>Beatrice Christensen Sköld</dc:creator>
       <dc:publisher>TPB</dc:publisher>
       <dc:subject>Valentin Haüy, education of the blind, relief print, visual communication, history</dc:subject>
-      <dc:contributor id="d179e25">TPB</dc:contributor>
-      <dc:contributor id="d179e71">Brian Burrows</dc:contributor>
-      <meta property="dcterms:modified">2012-04-26T18:53:49Z</meta>
-      <opf:meta name="dcterms:modified" content="2012-04-26T18:53:49Z"/>
-      <opf:meta refines="#d179e25" property="role" scheme="marc:relators">pro</opf:meta>
-      <opf:meta refines="#d179e71" property="role" scheme="marc:relators">nrt</opf:meta>
+      <dc:contributor id="d181e25">TPB</dc:contributor>
+      <dc:contributor id="d181e71">Brian Burrows</dc:contributor>
+      <meta property="dcterms:modified">2012-05-11T18:18:30Z</meta>
+      <opf:meta name="dcterms:modified" content="2012-05-11T18:18:30Z"/>
+      <opf:meta refines="#d181e25" property="role" scheme="marc:relators">pro</opf:meta>
+      <opf:meta refines="#d181e71" property="role" scheme="marc:relators">nrt</opf:meta>
       <opf:meta property="media:duration" refines="#item_3">02:53:11.857</opf:meta>
       <opf:meta property="media:duration">02:53:11.857</opf:meta>
       <opf:meta name="media:duration" content="02:53:11.857"/>

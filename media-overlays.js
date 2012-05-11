@@ -1,5 +1,5 @@
 // loads and plays a single SMIL document
-MediaOverlaysModel = Backbone.Model.extend({
+MediaOverlay = Backbone.Model.extend({
     audioplayer: null,
     smilModel: null,
     smilUrl: null,
@@ -54,25 +54,14 @@ MediaOverlaysModel = Backbone.Model.extend({
                 self.audioplayer.setNotifyClipDone(function() {
                     thisNode.notifyChildDone();
                 });
-                var nextNode = self.smilModel.peekNextAudio(this);
-                var nextSrc = $(nextNode).attr("src");
-                var thisSrc = $(this).attr("src");
-                var nextCB = $(nextNode).attr("clipBegin");
-                var thisCE = $(this).attr("clipEnd");
-                var playThrough = false;
                 var isJumpTarget = false;
                 if (this.hasOwnProperty("isJumpTarget")) {
                     isJumpTarget = this.isJumpTarget;
                     // reset the node's property
                     this.isJumpTarget = false;
                 }
-                // if the clips are in the same file, and the next clip starts within a few milliseconds of this clip's end:
-                // then tell the audio player to just keep playing
-                if (nextSrc == thisSrc && nextCB >= thisCE && nextCB <= thisCE + .050) {
-                    playThrough = true;
-                }
                 // play the node
-                self.audioplayer.play($(this).attr("src"), parseFloat($(this).attr("clipBegin")), parseFloat($(this).attr("clipEnd")), playThrough, isJumpTarget);
+                self.audioplayer.play($(this).attr("src"), parseFloat($(this).attr("clipBegin")), parseFloat($(this).attr("clipEnd")), isJumpTarget);
             }, 
             "text": function(){
                 var src = $(this).attr("src");
@@ -116,7 +105,7 @@ MediaOverlaysModel = Backbone.Model.extend({
 // SmilModel both creates and plays the model
 // Right now, the model extends the SMIL XML DOM; 
 // if this becomes too heavy, we could use a custom lightweight tree instead
-SmilModel = function() {
+MediaOverlay.SmilModel = function() {
     
     // these are playback logic functions for SMIL nodes
     // the context of each function is the node itself, as these functions will be attached to the nodes as members
@@ -214,7 +203,6 @@ SmilModel = function() {
     // node is the root of the SMIL tree, for example the body node of the DOM
     this.build = function(node) {
         root = node;
-        //removeTextNodes(node);
         processTree(node, 0);
     };
     
@@ -323,33 +311,6 @@ SmilModel = function() {
         }
     }
     
-    // remove the non-element nodes from the tree
-    // these nodes are not used in SMIL and are likely just whitespace garbage
-    // it's a little funky traversing a tree while removing nodes, so for now, we are doing this as a separate visit
-    // rather than during our other processing. 
-    function removeTextNodes(node) {
-        if (node.nodeType != node.ELEMENT_NODE) {
-            node.parentNode.removeChild(node);
-            return true;
-        }
-        else {
-            var len = node.childNodes.length;
-            var idx = 0;
-            for (var i = 0; i<len; i++) {
-                var wasRemoved = removeTextNodes(node.childNodes[idx]);
-                // stop if we're at the last one
-                if (idx == node.childNodes.length -1) {
-                    break;
-                }
-                if (wasRemoved == false) {
-                    // increment the counter if we haven't removed anything from childNodes
-                    idx++; 
-                }
-            }
-            return false;
-        }
-    }
-    
     // in the future, this will act as a skippability filter
     function canPlayNode(node) {
         return true;
@@ -359,7 +320,7 @@ SmilModel = function() {
 
 
 // utility functions
-MOUtils = {
+MediaOverlay.Utils = {
     // assume both are full paths
     isSameDocument: function(url1, url2) {
         if (url1 == null || url2 == null) {
@@ -427,5 +388,180 @@ MOUtils = {
         }
         var total = hours * 3600 + mins * 60 + secs;
         return total;
+    }
+};
+
+MediaOverlay.AudioClipPlayer = function() {
+    
+    // clip info
+    var src = null;
+    var clipBegin = null;
+    var clipEnd = null;
+    
+    // force the clip to reset its start time
+    var forceReset = false;
+    
+    // the html audio element created to hold whatever the current file is
+    var elm = new Audio();
+    
+    // callback function
+    var notifyClipDone = null;
+    
+    // send debug statements to the console
+    var consoleTrace = false;
+    
+    // ID of the setInterval timer
+    var intervalId = null;
+    
+    this.setNotifyClipDone = function(notifyClipDoneFn) {
+        notifyClipDone = notifyClipDoneFn;
+    };
+    this.setConsoleTrace =  function(isOn) {
+        consoleTrace = isOn;
+    };
+    
+    // clipBeginTime and clipEndTime are in seconds
+    // filesrc is an absolute path, local or remote
+    this.play = function(filesrc, clipBeginTime, clipEndTime, shouldForceReset) {
+        src = filesrc;
+        clipBegin = clipBeginTime;
+        clipEnd = clipEndTime;
+        forceReset = shouldForceReset;
+        
+        debugPrint("playing " + src + " from " + clipBegin + " to " + clipEnd);
+        
+        // make sure we haven't already created an element for this audio file
+        if (elm == null || elm.getAttribute("src") != src) {
+            loadData();
+        }
+        // the element is already loaded; just need to continue playing at the right point
+        else {
+            continueRender();
+        }
+    };
+    
+    this.isPlaying = function() {
+        if (elm == null) {
+            return false;
+        }
+        return !elm.paused;
+    };
+    
+    this.resume = function() {
+        if (elm != null) {
+            elm.play();
+        }
+    };
+    
+    this.pause = function() {
+        if (elm != null) {
+            elm.pause();
+        }
+    };
+    
+    this.setNotifyOnPause = function(notifyOnPause) {
+        elm.addEventListener("pause", function() {
+            notifyOnPause();
+        });
+    };
+    
+    this.setNotifyOnPlay = function(notifyOnPlay) {
+        elm.addEventListener("play", function() {
+            notifyOnPlay();
+        });
+    };
+    
+    this.getCurrentTime = function() {
+        if (elm != null) {
+            return elm.currentTime;
+        }
+        return 0;
+    };
+    this.getCurrentSrc = function() {
+        return src;
+    };
+    // volume ranges from 0 to 1.0
+    this.setVolume = function(value) {
+        if (value < 0) {
+            elm.volume = 0;
+        }
+        else if (value > 1) {
+            elm.volume = 1;
+        }
+        else {
+            elm.volume = value;
+        }
+    };
+    function loadData(){
+        debugPrint("Loading file " + src);
+        elm.setAttribute("src", src);
+        
+        // wait for 'canplay' before continuing
+        elm.addEventListener("canplay", setThisTime);
+        function setThisTime() {
+            elm.removeEventListener("canplay", setThisTime);
+            // TODO put something in here for remote files to make sure the file is buffered
+        
+            if (clipEnd > elm.duration) {
+                debugPrint("File is shorter than specified clipEnd time");
+                clipEnd = elm.duration;
+            }
+            debugPrint("Audio data loaded");
+            continueRender();        
+        }
+        
+        elm.addEventListener("ended", function() {
+            // cancel the timer, if any
+            if (intervalId != null) {
+                clearInterval(intervalId);
+            }
+            if (notifyClipDone != null) {
+                notifyClipDone();
+            }
+        });
+    }
+    
+    function continueRender() {
+        // if the current time is already somewhere within the clip that we want to play, then just let it keep playing
+        if (forceReset == false && elm.currentTime > clipBegin && elm.currentTime < clipEnd) {
+            startClipTimer();
+            elm.play();    
+        }
+        else {
+            elm.addEventListener("seeked", seeked);
+            console.log("setting currentTime from " + elm.currentTime + "to " + clipBegin);
+            elm.currentTime = clipBegin;
+            function seeked() {
+                elm.removeEventListener("seeked", seeked);
+                startClipTimer();
+                elm.play();
+            }
+        }
+    }
+    
+    function startClipTimer() {
+        
+        // cancel the old timer, if any
+        if (intervalId != null) {
+            clearInterval(intervalId);
+        }
+        
+        // we're using setInterval instead of monitoring the timeupdate event because timeupdate fires, at best, every 200ms, which messes up playback of short phrases.
+        // 11ms seems to be chrome's finest allowed granularity for setInterval (and this is for when the tab is active; otherwise it fires about every second)
+        intervalId = setInterval(function() {
+            if (elm.currentTime >= clipEnd) {
+                clearInterval(intervalId);
+                debugPrint("clip done");
+                if (notifyClipDone != null) {
+                    notifyClipDone();
+                }
+            }
+        }, 11);   
+    }
+    
+    function debugPrint(str) {
+        if (consoleTrace) {
+            console.log(str);
+        }
     }
 };

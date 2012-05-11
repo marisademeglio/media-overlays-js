@@ -5,9 +5,6 @@ AudioClipPlayer = function() {
     var clipBegin = null;
     var clipEnd = null;
     
-    // true = keep playing the file; false = pause when clip is done
-    var playThrough = false;
-    
     // force the clip to reset its start time
     var forceReset = false;
     
@@ -32,11 +29,10 @@ AudioClipPlayer = function() {
     
     // clipBeginTime and clipEndTime are in seconds
     // filesrc is an absolute path, local or remote
-    this.play = function(filesrc, clipBeginTime, clipEndTime, shouldPlayThrough, shouldForceReset) {
+    this.play = function(filesrc, clipBeginTime, clipEndTime, shouldForceReset) {
         src = filesrc;
         clipBegin = clipBeginTime;
         clipEnd = clipEndTime;
-        playThrough = shouldPlayThrough;
         forceReset = shouldForceReset;
         
         debugPrint("playing " + src + " from " + clipBegin + " to " + clipEnd);
@@ -163,10 +159,6 @@ AudioClipPlayer = function() {
             if (elm.currentTime >= clipEnd) {
                 clearInterval(intervalId);
                 debugPrint("clip done");
-                // if we shouldn't play through, then pause the element and wait for our next instruction
-                if (playThrough == false) {
-                    elm.pause();
-                }
                 if (notifyClipDone != null) {
                     notifyClipDone();
                 }
