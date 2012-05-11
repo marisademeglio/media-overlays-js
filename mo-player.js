@@ -107,7 +107,10 @@ MediaOverlaysModel = Backbone.Model.extend({
     },
     findNodeByTextSrc: function(src) {
         return this.smilModel.findNodeByAttrValue("text", "src", src);
-    }   
+    },
+    setVolume: function(volume) {
+        this.audioplayer.setVolume(volume);
+    }
 });
 
 // SmilModel both creates and plays the model

@@ -91,7 +91,18 @@ AudioClipPlayer = function() {
     this.getCurrentSrc = function() {
         return src;
     };
-    
+    // volume ranges from 0 to 1.0
+    this.setVolume = function(value) {
+        if (value < 0) {
+            elm.volume = 0;
+        }
+        else if (value > 1) {
+            elm.volume = 1;
+        }
+        else {
+            elm.volume = value;
+        }
+    };
     function loadData(){
         debugPrint("Loading file " + src);
         elm.setAttribute("src", src);

@@ -28,7 +28,8 @@
             startNode: null,
             events: {
                 'click #playpause': 'playpause',
-                'click #jump': 'jump'
+                'click #jump': 'jump',
+                'change #volume': 'setvolume'
             },
             
             initialize: function() {
@@ -88,6 +89,9 @@
                     self.startNode = self.model.findNodeByTextSrc(RANDOM_TEXT_SRC);
                     self.model.play(self.startNode);
                 }
+            },
+            setvolume: function() {
+                this.model.setVolume($("#volume")[0].value/100);
             }
         });
         
@@ -163,6 +167,7 @@
         <div id="controls">
             <button id="playpause">play</button>
             <button id="jump">jump</button>
+            <input id="volume" type="range"  min="0" max="100">Volume</input>
         </div>
         <iframe id="textarea"></iframe>
     </body>
