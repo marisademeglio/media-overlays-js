@@ -7,7 +7,6 @@
         <script src="lib/underscore-min.js"></script>
         <script src="lib/backbone-min.js"></script>
         
-        <script src="audio-clip-player.js"></script>
         <script src="media-overlays.js"></script>
         <script>
         
@@ -17,7 +16,7 @@
         RANDOM_TEXT_SRC = "valentinhauy.xhtml#rgn_cnt_0116";
         
         $(document).ready(function() {
-            model = new MediaOverlaysModel();
+            model = new MediaOverlay();
             controlsview = new Controls({model: model, el: $("#controls")});  
             textview = new TextArea({model: model, el: $("#textarea")});
         });
@@ -113,9 +112,9 @@
            
            loadText: function() {
                var textdoc = this.model.get("current_text_document_url");
-               var fullurl = MOUtils.resolveUrl(textdoc, SMIL_URL);
+               var fullurl = MediaOverlay.Utils.resolveUrl(textdoc, SMIL_URL);
                if ($("#textarea").attr("src") != fullurl) {
-                    $("#textarea").attr("src", MOUtils.resolveUrl(textdoc, SMIL_URL));
+                    $("#textarea").attr("src", MediaOverlay.Utils.resolveUrl(textdoc, SMIL_URL));
                }
            },
            

@@ -16,7 +16,7 @@ MediaOverlay = Backbone.Model.extend({
     
     initialize: function() {
         var self = this;
-        this.audioplayer = new AudioClipPlayer();
+        this.audioplayer = new MediaOverlay.AudioClipPlayer();
         this.audioplayer.setConsoleTrace(true);
         
         // always know whether we're playing or paused
@@ -39,7 +39,7 @@ MediaOverlay = Backbone.Model.extend({
     // backbone fetch() callback
     parse: function(xml) {
         var self = this;
-        this.smilModel = new SmilModel();
+        this.smilModel = new MediaOverlay.SmilModel();
         this.smilModel.setUrl(this.smilUrl);
         this.smilModel.setNotifySmilDone(function() {
             self.set({is_document_done: true});
@@ -67,8 +67,8 @@ MediaOverlay = Backbone.Model.extend({
                 var src = $(this).attr("src");
                 // broadcast the text properties so that any listeners can do the right thing wrt loading/highlighting text
                 self.set({
-                    current_text_document_url: MOUtils.stripFragment(src), 
-                    current_text_element_id: MOUtils.getFragment(src)
+                    current_text_document_url: MediaOverlay.Utils.stripFragment(src), 
+                    current_text_element_id: MediaOverlay.Utils.getFragment(src)
                 });
             }
         });
@@ -293,16 +293,16 @@ MediaOverlay.SmilModel = function() {
         // process audio nodes' clock values
         if (node.tagName == "audio") {
             if ($(node).attr("src") != undefined) {
-                $(node).attr("src", MOUtils.resolveUrl($(node).attr("src"), url));
+                $(node).attr("src", MediaOverlay.Utils.resolveUrl($(node).attr("src"), url));
             }    
             if ($(node).attr("clipBegin") != undefined) {
-                $(node).attr("clipBegin", MOUtils.resolveClockValue($(node).attr("clipBegin")));
+                $(node).attr("clipBegin", MediaOverlay.Utils.resolveClockValue($(node).attr("clipBegin")));
             }
             else {
                 $(node).attr("clipBegin", 0);
             }
             if ($(node).attr("clipEnd") != undefined) {
-                $(node).attr("clipEnd", MOUtils.resolveClockValue($(node).attr("clipEnd")));
+                $(node).attr("clipEnd", MediaOverlay.Utils.resolveClockValue($(node).attr("clipEnd")));
             }
             else {
                 // TODO check if this is reasonable
@@ -326,7 +326,7 @@ MediaOverlay.Utils = {
         if (url1 == null || url2 == null) {
             return false;
         }
-        return MOUtils.stripFragment(url1) == MOUtils.stripFragment(url2);
+        return MediaOverlay.Utils.stripFragment(url1) == MediaOverlay.Utils.stripFragment(url2);
     },
     getFragment: function(url) {
         if (url.indexOf("#") != -1 && url.indexOf("#") < url.length -1) {
