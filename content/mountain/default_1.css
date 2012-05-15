@@ -38,14 +38,14 @@ h1 {
 h2,h3,h4 {margin-top: 8mm;}
 
 /* Dark red with left border for sidebars and notices */
-span.sidebar, span.notice {
+.sidebar, .notice {
   display:block;
   border:1px solid rgb(150,150,150);
   padding:0.3em;
   margin:0.5em;}
 
 /* Prodnotes are gray */
-span.optional-prodnote a {color:gray;}
+.optional-prodnote a {color:gray;}
 
 /* the extra elements added after a skip element, only necessary in ncc only
 reduced in size and gray */
@@ -76,14 +76,14 @@ a:hover, a:active, a:focus {
   color  : rgb(0,0,255)             /* sets color to classic hyperlink blue when hovering or active */
 }
 
-span.page-normal, span.page-special, span.page-front {
+.page-normal, .page-special, .page-front {
    display : block;             /* forces linebreak if several pages occur in uninterrupted sequence. If the css is used for the a ncc document or an ncc only book; this may be changed to "display : block;" */
    text-align : left;               /* aligns max left; and */
    margin-left: -2em;               /* determines amount of float outside common vertical leftmargin */
    font-weight : bold;
 }
 
-span.noteref {
+.noteref {
    vertical-align : super;          /* superscripts the text node */
    font-size : 80%;             /* a typographical downsize */
    border : 1px solid rgb(255,0,0);     /* a mnemonic border; to be able to differentiate from other navigable integer elements */
@@ -96,7 +96,7 @@ span.noteref {
 }
 
 /* ps, added a margin at the top */
-div.notebody {
+.notebody {
    border : 1px solid rgb(255,0,0);     /* sets same border type as span.noteref */
    padding: 0.2em;
    margin-top:1em;
