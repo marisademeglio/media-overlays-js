@@ -1,7 +1,7 @@
 // SmilModel both creates and plays the model
 // Right now, the model extends the SMIL XML DOM; 
 // if this becomes too heavy, we could use a custom lightweight tree instead
-MediaOverlay.SmilModel = function() {
+SmilModel = function() {
     
     // these are playback logic functions for SMIL nodes
     // the context of each function is the node itself, as these functions will be attached to the nodes as members
@@ -189,16 +189,16 @@ MediaOverlay.SmilModel = function() {
         // process audio nodes' clock values
         if (node.tagName == "audio") {
             if ($(node).attr("src") != undefined) {
-                $(node).attr("src", MediaOverlay.Utils.resolveUrl($(node).attr("src"), url));
+                $(node).attr("src", resolveUrl($(node).attr("src"), url));
             }    
             if ($(node).attr("clipBegin") != undefined) {
-                $(node).attr("clipBegin", MediaOverlay.Utils.resolveClockValue($(node).attr("clipBegin")));
+                $(node).attr("clipBegin", resolveClockValue($(node).attr("clipBegin")));
             }
             else {
                 $(node).attr("clipBegin", 0);
             }
             if ($(node).attr("clipEnd") != undefined) {
-                $(node).attr("clipEnd", MediaOverlay.Utils.resolveClockValue($(node).attr("clipEnd")));
+                $(node).attr("clipEnd", resolveClockValue($(node).attr("clipEnd")));
             }
             else {
                 // TODO check if this is reasonable

@@ -1,0 +1,327 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Media Overlay Tests</title>
+        <meta charset="UTF-8"></meta>
+        <script src="../lib/jquery-1.7.1.min.js"></script>
+        <script src="../lib/underscore-min.js"></script>
+        <script src="../lib/backbone-min.js"></script>
+        <script src="../src/media-overlay.js"></script>
+        <script src="../src/audio-clip-player.js"></script>
+        <script src="../src/smil-model.js"></script>
+        
+        <script>
+        
+        // DATA: info about each test sample
+        // each must have a title, features list, and smilurl
+        // each may have a toc array
+        DATA = {
+            
+            // valentin haüy
+            "valentin": {
+                "title": "Valentin Haüy",
+                "features": ["Sample table of contents items"],
+                "smilurl": "http://localhost:4000/tests/data/valentin/valentinhauy.smil",
+                // sample toc
+                "toc": [
+                    {
+                        "label": "Beginning",
+                        "target": "valentinhauy.xhtml#rgn_cnt_0001"
+                    },
+                    {
+                        "label": "Chapter 3.3",
+                        "target": "valentinhauy.xhtml#rgn_cnt_0140"
+                    },
+                    {
+                        "label": "Page 10",
+                        "target": "valentinhauy.xhtml#rgn_cnt_0167" 
+                    }
+                ]
+            },
+            
+            // climbing the highest mountain
+            "mountain": {
+                "title": "Climbing the highest mountain",
+                "features": ["Skippability", "Escapability"],
+                "smilurl": "http://localhost:4000/tests/data/mountain/ncconlydemo.smil"
+            },
+            
+            // moby dick
+            "moby": {
+                "title": "Moby Dick",
+                "features": [],
+                "smilurl": "http://localhost:4000/tests/data/moby/chapter_001_overlay.smil"
+            }
+            
+        };
+        
+        dataset = null;
+        
+        $(document).ready(function() {
+            // grab the 'use' parameter and use that dataset
+            var datasetChoice = document.URL.match(/[&\?]use=([^&]*)/);
+            
+            if (datasetChoice == null && datasetChoice.length < 2) {
+                // default to the 'valentin hauy' book sample
+                dataset = DATA['valentin'];
+            }
+            else {
+                dataset = DATA[datasetChoice[1].replace("#", '')];
+            }
+            
+            $("#title").text(dataset['title']);
+            $.each(dataset['features'], function(idx, val) {
+                $("#description").append("<li>" + val + "</li>");
+            });
+            
+            // use the media overlay model
+            var model = new MediaOverlay();
+            
+            // our views
+            var playerview = new Player({model: model, el: $("#controls")});  
+            var textview = new TextArea({model: model, el: $("#textarea")});
+            var toc = new Toc({model: model, el: $("#toc")});
+        });
+        
+        Player = Backbone.View.extend({
+            
+            is_loaded: false,
+            
+            events: {
+                'click #playpause': 'playpause',
+                'change #volume': 'setvolume'
+            },
+            
+            initialize: function() {
+                var self = this;
+                this.model.bind('change:is_playing', function() {self.render()});
+                this.model.bind('change:is_ready', function() {
+                   self.is_loaded = true; 
+                });
+            },
+            
+            render: function() {
+                if (this.model.get("is_playing")) {
+                    $("#playpause").text("pause");
+                    $("#cb").attr('disabled', 'disabled');
+                }
+                else {
+                    $("#playpause").text("play");
+                    $("#cb").removeAttr('disabled');
+                }
+                return this;
+            },
+            
+            playpause: function() {
+                var self = this;
+                // load a file if we haven't already
+                if (this.is_loaded == false) {
+                    this.model.bind("change:is_ready", onready);
+                    function onready() {
+                        self.model.unbind("change:is_ready", onready);
+                        self.model.play(null); 
+                    }
+                    this.model.fetch({url: dataset['smilurl']});
+                }
+                else {
+                    if (this.model.get("is_playing")) {
+                        this.model.pause();
+                    }
+                    else {
+                        this.model.resume();
+                    }
+                }
+            },
+            setvolume: function() {
+                this.model.setVolume($("#volume")[0].value/100);
+            }
+        });
+
+        TextArea = Backbone.View.extend({
+            lastid: null,
+            
+            initialize: function() {
+                var self = this;
+                this.model.bind('change:current_text_document_url', function() {self.loadText()});
+                this.model.bind('change:current_text_element_id', function() {self.highlight()});
+                this.model.bind('change:is_document_done', function() {
+                    if (self.model.get("is_document_done")) {
+                        console.log("document is done")
+                    }
+                });
+            },
+           
+           loadText: function() {
+               var textdoc = this.model.get("current_text_document_url");
+               var baseurl = dataset['smilurl'].substr(0, dataset['smilurl'].lastIndexOf("/") + 1);
+               var fullurl = baseurl + textdoc;
+               var self = this;
+               if ($("#textarea").attr("src") != fullurl) {
+                   $("#textarea").load(function() {
+                       
+                       // set the stylesheet
+                       var css = $("<link href='style.css' rel='stylesheet' type='text/css'></link>");
+                       $("#textarea").contents().find("head")[0].appendChild(css[0]);
+                       
+                       // we miss the first highlight when the doc is loading, so make sure to do it anyway
+                      self.highlight();
+                   });
+                    $("#textarea").attr("src", fullurl);
+               }
+           },
+           
+           // highlight the new ID and unhighlight the old one
+           // annoyingly, using removeClass to unhighlight wasn't working in iframes
+           // so rather than leave everything highlighted, we'll just make sure it's in view
+           highlight: function() {
+               var id = this.model.get("current_text_element_id");
+               if (this.model.get("should_highlight")) {
+                   /*if (this.lastid != null) {
+                       // undo the background color change
+                       var lastelm = getTextElm(this.lastid);
+                       console.log("Before remove class");
+                       console.log(lastelm);
+                      
+                      lastelm.removeClass("highlight");
+                      
+                      console.log("After remove class");
+                      console.log(lastelm);
+                      
+                   }*/
+                   
+                   var elm = getTextElm(id);
+                   
+                   if (elm.length > 0) {
+                       this.lastid = id;
+                       
+                       if (isVisible(elm[0]) == false) {
+                           elm[0].scrollIntoView();
+                       }
+                      //  elm.addClass("highlight");
+                   }
+                   
+                   function getTextElm(elmId) {
+                       return $("#textarea").contents().find("#" + id);
+                   }
+                   
+                   function isVisible(textElm) {
+                       var e = $(textElm);
+                       var area = $("#textarea");
+                       var scrollTop = area.contents().find("body").scrollTop();
+                       if (e.offset().top > scrollTop && e.offset().top + e.height() < scrollTop + area.height()) {
+                           return true;
+                       }
+                       return false;
+                   }
+               }
+           }
+           
+        });   
+        
+        Toc = Backbone.View.extend({
+            initialize: function(){
+                var self = this;
+                self.render();
+                this.model.bind("change:is_ready", function() {self.render()});
+                this.populateToc();
+            },
+            
+            populateToc: function() {
+                if (dataset.hasOwnProperty('toc') == false) {
+                    return;
+                }
+                
+                var self = this;
+                $.each(dataset['toc'], function(idx, val) {
+                    var id = "id_" + idx;
+                   $("#toc > ul").append("<li><a href='#' id='" + id + "'>" + val['label'] + "</a></li>");
+                   $("#" + id).click(function() {
+                       self.navigate(val['target']);
+                   });
+                });
+            },
+            
+            navigate: function(url) {
+                this.model.pause();
+                var targetNode = this.model.findNodeByTextSrc(url);
+                this.model.play(targetNode);
+            },
+            
+            render: function() {
+                var visible = dataset.hasOwnProperty("toc") && this.model.get("is_ready");
+                $(this.el).toggle(visible);
+            }
+           
+            
+        });
+         
+        </script>
+        <style>
+        body{
+            font-family: helvetica;
+            margin: 20px;
+        }
+        #textarea {
+            width: 100%;
+            height: 500px;
+        }
+        #controls {
+            margin-top: 40px;
+            background-color: lightgray;
+            padding: 10px;
+                
+        }
+        #playpause {
+            margin-right: 50px;
+            font-size: medium;
+        }  
+        #controls a {
+            text-decoration: underline;
+        } 
+        #book {
+            display: table;
+            width: 100%;
+            margin-top: 40px;
+        }   
+        #book > * {
+            display: table-cell;
+        }
+        #sidebar {
+            vertical-align: top;
+            width: 20%;
+        }
+        .test {
+            background-color: red;
+        }
+        </style>
+    </head>
+    <body id="view">
+        <h1 id="title"></h1>
+        
+        <p>Features:</p>
+        <ul id="description">
+            <li>Play/pause</li>
+            <li>Volume control</li>
+            <li>Synchronized highlighting</li>
+        </ul>
+        
+        
+        <div id="book">
+            <div id="sidebar">
+                <div id="toc">
+                    <p>Sample TOC</p>
+                    <ul></ul>
+                </div>
+                <div id="skips"></div>
+            </div>
+            <iframe id="textarea"></iframe>
+        </div>
+        
+        <div id="controls">
+            <button id="playpause">play</button>
+            <label for="volume">Volume</label><input id="volume" type="range"  min="0" max="100"></input>
+        </div>
+        
+        
+    </body>
+</html>

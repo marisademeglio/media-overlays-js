@@ -16,7 +16,7 @@ MediaOverlay = Backbone.Model.extend({
     
     initialize: function() {
         var self = this;
-        this.audioplayer = new MediaOverlay.AudioClipPlayer();
+        this.audioplayer = new AudioClipPlayer();
         this.audioplayer.setConsoleTrace(true);
         
         // always know whether we're playing or paused
@@ -39,7 +39,7 @@ MediaOverlay = Backbone.Model.extend({
     // backbone fetch() callback
     parse: function(xml) {
         var self = this;
-        this.smilModel = new MediaOverlay.SmilModel();
+        this.smilModel = new SmilModel();
         this.smilModel.setUrl(this.smilUrl);
         this.smilModel.setNotifySmilDone(function() {
             self.set({is_document_done: true});
@@ -67,8 +67,8 @@ MediaOverlay = Backbone.Model.extend({
                 var src = $(this).attr("src");
                 // broadcast the text properties so that any listeners can do the right thing wrt loading/highlighting text
                 self.set({
-                    current_text_document_url: MediaOverlay.Utils.stripFragment(src), 
-                    current_text_element_id: MediaOverlay.Utils.getFragment(src)
+                    current_text_document_url: self.stripFragment(src), 
+                    current_text_element_id: self.getFragment(src)
                 });
             }
         });

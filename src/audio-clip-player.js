@@ -1,4 +1,4 @@
-MediaOverlay.AudioClipPlayer = function() {
+AudioClipPlayer = function() {
     
     // clip info
     var src = null;

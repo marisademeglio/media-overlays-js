@@ -1,0 +1,168 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Media Overlays Experiments</title>
+        
+        <script src="../lib/jquery-1.7.1.min.js"></script>
+        <script src="../testdata/jsclips/number-clips.js"></script>
+        <script src="../audio-clip-player.js"></script>
+        <script>
+        
+       $(document).ready(function() {
+           obj = new Test();
+           obj.start();
+        });
+        
+        Test = function() {
+            var audioplayer = new AudioClipPlayer;
+            var ready = true;
+            var infocus = true;
+            var idx = 0;
+            
+            this.start = function() {
+                var self = this;
+                audioplayer.setConsoleTrace(true);
+                
+                audioplayer.setNotifyClipDone(function() {
+                    notifyDone();   
+                });
+               
+                audioplayer.setNotifyOnPause(function() {
+                    $("#playpause").text("play");
+                    console.log("onpause");
+                });
+                audioplayer.setNotifyOnPlay(function() {
+                    $("#playpause").text("pause");
+                    console.log("onplay");
+                });
+                $("#playpause").click(function() {
+                    if (audioplayer.isPlaying()) {
+                        pause();
+                    }
+                    else {
+                        play();
+                    }
+                });
+            };
+            
+            function notifyDone() {
+                idx++;
+                if (idx >= clips.length) {
+                   return;
+                }
+                ready = true;
+                play();
+            }
+            
+            function play() {
+                if (ready) {
+                    ready = false;
+                    // baseurl and clips are from *-clips.js, included at the top
+                    var playThrough = false;
+                    if (idx + 1 < clips.length) {
+                        var currentclip = clips[idx];
+                        var nextclip = clips[idx + 1];
+                        var currentclipEnd = currentclip[2];
+                        var nextclipBegin = nextclip[1];
+                        if (
+                            // if 1. the srcs are the same
+                            currentclip[0] == nextclip[0] &&
+                            // and 2. the space between them is narrow
+                            nextclipBegin < currentclipEnd + .100) {
+                                
+                                // then tell the audio player to play continuously
+                                playThrough = true;
+                        }
+                    }
+                    audioplayer.play(baseurl + clips[idx][0], clips[idx][1], clips[idx][2], playThrough);
+                    debugPrint(clips[idx][3]);
+                }
+                else {
+                    audioplayer.resume();
+                }
+            }
+            
+            function pause() {
+                audioplayer.pause(); 
+            }
+            
+            function notifyDebugPrint(str) {
+                if (str == undefined) return;
+                debugPrint(str)
+            }
+            function debugPrint(str) {
+                $("#debug").append("<p>" + str + "</p>");
+            }
+            
+            // do an integrity check when the window comes into focus
+            // we might not have been receiving end of clip events because setInterval, 
+            // used for checking clip playback status, goes down to once per second when the window is out of focus
+            window.addEventListener('focus', function() {
+                if (audioplayer.isPlaying()) {
+                   // integrityCheck();                    
+                }
+                
+            });
+    
+    
+            // update the index based on where the audio is
+            // this isn't being used at the moment as it doesn't seem necessary after the introduction of the playThrough attribute
+            function integrityCheck() {
+                console.log("performing integrity check");
+                var currentTime = audioplayer.getCurrentTime();
+                
+                // if we're out of range
+                if (currentTime < clips[idx][1] || currentTime > clips[idx][2]) {
+                    console.log("we think we're in clip " + idx);
+                    console.log("current time = " + currentTime);
+                    var found = false;
+                    // start by looking ahead
+                    for (var i = idx+1; i<clips.length; i++) {
+                        if (currentTime >= clips[i][1] && currentTime <= clips[i][2]) {
+                            console.log("we are not in the correct clip (should be " + i + ")");
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (found) {
+                        catchup(i);
+                        console.log("catching up to index " + i);
+                        idx = i;  
+                        audioplayer.updateTimer(clips[idx][1], clips[idx][2]);
+                    }
+                    else {
+                        // TODO manually force the clip to be the next one because the audio has gone off horribly wrong
+                        console.log("where are we?");
+                        idx++;
+                        if (idx < clips.length) {
+                            console.log("forcing reset");
+                            audioplayer.play(baseurl + clips[idx][0], clips[idx][1], clips[idx][2]);  
+                            debugPrint(clips[idx][3]);
+                            
+                        }
+                        else {
+                            console.log("out of range; probably at last clip");
+                        }
+                    }
+                }
+            }
+            
+            // catchup is just an implementation detail of this particular test
+            // display all the text between the current point and the index
+            function catchup(index) {
+                for (var i = idx+1; i<=index; i++) {
+                    debugPrint(clips[i][3]);
+                }
+            }
+        }
+        
+        </script>
+    </head>
+    <body>
+        <h1>Audio clip test</h1>
+        
+        <button id="playpause">play</button>
+        
+        <div id="debug"></div>
+    </body>
+</html>
