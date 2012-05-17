@@ -1,0 +1,360 @@
+<smil xmlns="http://www.w3.org/ns/SMIL" xmlns:epub="http://www.idpf.org/2007/ops" version="3.0">
+   <body id="mo1">
+      <par id="mo1_par2" epub:type="title">
+         <text src="content.xhtml#dtb2" id="mo1_par2_text"/>
+         <audio clipBegin="0s"
+                clipEnd="4.961s"
+                id="mo1_par2_audio"
+                src="speechgen0002.mp3"/>
+      </par>
+      <par epub:type="pagebreak" id="mo1_par3">
+         <text src="content.xhtml#page-1" id="mo1_par3_text"/>
+         <audio clipBegin="4.961s"
+                clipEnd="6.004s"
+                id="mo1_par3_audio"
+                src="speechgen0002.mp3"/>
+      </par>
+      <par id="mo1_par4">
+         <text src="content.xhtml#dtb3" id="mo1_par4_text"/>
+         <audio clipBegin="6.004s"
+                clipEnd="12.983s"
+                id="mo1_par4_audio"
+                src="speechgen0002.mp3"/>
+      </par>
+      <par id="mo1_par5">
+         <text src="content.xhtml#dtb4" id="mo1_par5_text"/>
+         <audio clipBegin="12.983s"
+                clipEnd="17.172s"
+                id="mo1_par5_audio"
+                src="speechgen0002.mp3"/>
+      </par>
+      <par id="mo1_par6">
+         <text src="content.xhtml#dtb5" id="mo1_par6_text"/>
+         <audio clipBegin="17.172s"
+                clipEnd="21.207s"
+                id="mo1_par6_audio"
+                src="speechgen0002.mp3"/>
+      </par>
+      <par id="mo1_par7">
+         <text src="content.xhtml#dtb6" id="mo1_par7_text"/>
+         <audio clipBegin="0s"
+                clipEnd="3.986s"
+                id="mo1_par7_audio"
+                src="speechgen0003.mp3"/>
+      </par>
+      <par epub:type="pagebreak" id="mo1_par8">
+         <text src="content.xhtml#page-2" id="mo1_par8_text"/>
+         <audio clipBegin="3.986s"
+                clipEnd="5.004s"
+                id="mo1_par8_audio"
+                src="speechgen0003.mp3"/>
+      </par>
+      <par id="mo1_par9">
+         <text src="content.xhtml#dtb7" id="mo1_par9_text"/>
+         <audio clipBegin="5.004s"
+                clipEnd="16.864s"
+                id="mo1_par9_audio"
+                src="speechgen0003.mp3"/>
+      </par>
+      <par id="mo1_par10">
+         <text src="content.xhtml#dtb8" id="mo1_par10_text"/>
+         <audio clipBegin="16.864s"
+                clipEnd="19.154s"
+                id="mo1_par10_audio"
+                src="speechgen0003.mp3"/>
+      </par>
+      <par id="mo1_par11">
+         <text src="content.xhtml#dtb9" id="mo1_par11_text"/>
+         <audio clipBegin="19.154s"
+                clipEnd="30.26s"
+                id="mo1_par11_audio"
+                src="speechgen0003.mp3"/>
+      </par>
+      
+      <par id="mo1_par12">
+         <text src="content.xhtml#dtb10" id="mo1_par12_text"/>
+         <audio clipBegin="30.26s"
+                clipEnd="40.964s"
+                id="mo1_par12_audio"
+                src="speechgen0003.mp3"/>
+      </par>
+      <par id="mo1_par13">
+         <text src="content.xhtml#dtb11" id="mo1_par13_text"/>
+         <audio clipBegin="40.964s"
+                clipEnd="46.572s"
+                id="mo1_par13_audio"
+                src="speechgen0003.mp3"/>
+      </par>
+      
+      <seq epub:type="sidebar" epub:textref="content.xhtml#aside1">
+      
+          <par id="mo1_par14">
+             <text src="content.xhtml#dtb12" id="mo1_par14_text"/>
+             <audio clipBegin="46.572s"
+                    clipEnd="53.053s"
+                    id="mo1_par14_audio"
+                    src="speechgen0003.mp3"/>
+          </par>
+          <par id="mo1_par15">
+             <text src="content.xhtml#dtb13" id="mo1_par15_text"/>
+             <audio clipBegin="53.053s"
+                    clipEnd="57.106s"
+                    id="mo1_par15_audio"
+                    src="speechgen0003.mp3"/>
+          </par>
+      </seq>
+      
+      
+      <par id="mo1_par16">
+         <text src="content.xhtml#dtb14" id="mo1_par16_text"/>
+         <audio clipBegin="0s"
+                clipEnd="4.061s"
+                id="mo1_par16_audio"
+                src="speechgen0004.mp3"/>
+      </par>
+      <par epub:type="pagebreak" id="mo1_par17">
+         <text src="content.xhtml#page-3" id="mo1_par17_text"/>
+         <audio clipBegin="4.061s"
+                clipEnd="5.168s"
+                id="mo1_par17_audio"
+                src="speechgen0004.mp3"/>
+      </par>
+      <par id="mo1_par18">
+         <text src="content.xhtml#dtb15" id="mo1_par18_text"/>
+         <audio clipBegin="5.168s"
+                clipEnd="16.875s"
+                id="mo1_par18_audio"
+                src="speechgen0004.mp3"/>
+      </par>
+      <par id="mo1_par19">
+         <text src="content.xhtml#dtb16" id="mo1_par19_text"/>
+         <audio clipBegin="16.875s"
+                clipEnd="31.735s"
+                id="mo1_par19_audio"
+                src="speechgen0004.mp3"/>
+      </par>
+      <par id="mo1_par20">
+         <text src="content.xhtml#dtb17" id="mo1_par20_text"/>
+         <audio clipBegin="31.735s"
+                clipEnd="35.255s"
+                id="mo1_par20_audio"
+                src="speechgen0004.mp3"/>
+      </par>
+      <par id="mo1_par21">
+         <text src="content.xhtml#dtb18" id="mo1_par21_text"/>
+         <audio clipBegin="35.255s"
+                clipEnd="50.913s"
+                id="mo1_par21_audio"
+                src="speechgen0004.mp3"/>
+      </par>
+      <par epub:type="pagebreak" id="mo1_par22">
+         <text src="content.xhtml#page-4" id="mo1_par22_text"/>
+         <audio clipBegin="50.913s"
+                clipEnd="52.022s"
+                id="mo1_par22_audio"
+                src="speechgen0004.mp3"/>
+      </par>
+      <par id="mo1_par23">
+         <text src="content.xhtml#dtb19" id="mo1_par23_text"/>
+         <audio clipBegin="52.022s"
+                clipEnd="54.839s"
+                id="mo1_par23_audio"
+                src="speechgen0004.mp3"/>
+      </par>
+      <par id="mo1_par24">
+         <text src="content.xhtml#dtb20" id="mo1_par24_text"/>
+         <audio clipBegin="54.839s"
+                clipEnd="59.281s"
+                id="mo1_par24_audio"
+                src="speechgen0004.mp3"/>
+      </par>
+      
+      <seq id="mo1_seq25" epub:textref="content.xhtml#dtb21" epub:type="table">
+         
+         <seq id="mo1_seq25-1" epub:textref="content.xhtml#dtb22" epub:type="table-row">
+             
+            <par id="mo1_seq25-1_par1" epub:type="table-cell">
+               <text src="content.xhtml#dtb23" id="mo1_seq25-1_par1_text"/>
+               <audio clipBegin="59.281s"
+                      clipEnd="01:01.011"
+                      id="mo1_seq25-1_par1_audio"
+                      src="speechgen0004.mp3"/>
+            </par>
+            <par id="mo1_seq25-1_par2" epub:type="table-cell">
+               <text src="content.xhtml#dtb24" id="mo1_seq25-1_par2_text"/>
+               <audio clipBegin="01:01.011"
+                      clipEnd="01:01.652"
+                      id="mo1_seq25-1_par2_audio"
+                      src="speechgen0004.mp3"/>
+            </par>
+            <par id="mo1_seq25-1_par3" epub:type="table-cell">
+               <text src="content.xhtml#dtb25" id="mo1_seq25-1_par3_text"/>
+               <audio clipBegin="01:01.652"
+                      clipEnd="01:02.319"
+                      id="mo1_seq25-1_par3_audio"
+                      src="speechgen0004.mp3"/>
+            </par>
+            <par id="mo1_seq25-1_par4" epub:type="table-cell">
+               <text src="content.xhtml#dtb26" id="mo1_seq25-1_par4_text"/>
+               <audio clipBegin="01:02.319"
+                      clipEnd="01:02.955"
+                      id="mo1_seq25-1_par4_audio"
+                      src="speechgen0004.mp3"/>
+            </par>
+            <par id="mo1_seq25-1_par5" epub:type="table-cell">
+               <text src="content.xhtml#dtb27" id="mo1_seq25-1_par5_text"/>
+               <audio clipBegin="01:02.955"
+                      clipEnd="01:03.484"
+                      id="mo1_seq25-1_par5_audio"
+                      src="speechgen0004.mp3"/>
+            </par>
+            <par id="mo1_seq25-1_par6" epub:type="table-cell">
+               <text src="content.xhtml#dtb28" id="mo1_seq25-1_par6_text"/>
+               <audio clipBegin="01:03.484"
+                      clipEnd="01:04.122"
+                      id="mo1_seq25-1_par6_audio"
+                      src="speechgen0004.mp3"/>
+            </par>
+            <par id="mo1_seq25-1_par7" epub:type="table-cell">
+               <text src="content.xhtml#dtb29" id="mo1_seq25-1_par7_text"/>
+               <audio clipBegin="01:04.122"
+                      clipEnd="01:04.802"
+                      id="mo1_seq25-1_par7_audio"
+                      src="speechgen0004.mp3"/>
+            </par>
+            <par id="mo1_seq25-1_par8" epub:type="table-cell">
+               <text src="content.xhtml#dtb30" id="mo1_seq25-1_par8_text"/>
+               <audio clipBegin="01:04.802"
+                      clipEnd="01:05.435"
+                      id="mo1_seq25-1_par8_audio"
+                      src="speechgen0004.mp3"/>
+            </par>
+         </seq>
+         
+         <seq id="mo1_seq25-2" epub:textref="content.xhtml#dtb31" epub:type="table-row">
+            <par id="mo1_seq25-2_par1" epub:type="table-cell">
+               <text src="content.xhtml#dtb32" id="mo1_seq25-2_par1_text"/>
+               <audio clipBegin="01:05.435"
+                      clipEnd="01:05.994"
+                      id="mo1_seq25-2_par1_audio"
+                      src="speechgen0004.mp3"/>
+            </par>
+            <par id="mo1_seq25-2_par2" epub:type="table-cell">
+               <text src="content.xhtml#dtb33" id="mo1_seq25-2_par2_text"/>
+               <audio clipBegin="01:05.994"
+                      clipEnd="01:06.695"
+                      id="mo1_seq25-2_par2_audio"
+                      src="speechgen0004.mp3"/>
+            </par>
+            <par id="mo1_seq25-2_par3" epub:type="table-cell">
+               <text src="content.xhtml#dtb34" id="mo1_seq25-2_par3_text"/>
+               <audio clipBegin="01:06.695"
+                      clipEnd="01:07.369"
+                      id="mo1_seq25-2_par3_audio"
+                      src="speechgen0004.mp3"/>
+            </par>
+            <par id="mo1_seq25-2_par4" epub:type="table-cell">
+               <text src="content.xhtml#dtb35" id="mo1_seq25-2_par4_text"/>
+               <audio clipBegin="01:07.369"
+                      clipEnd="01:07.977"
+                      id="mo1_seq25-2_par4_audio"
+                      src="speechgen0004.mp3"/>
+            </par>
+            <par id="mo1_seq25-2_par5" epub:type="table-cell">
+               <text src="content.xhtml#dtb36" id="mo1_seq25-2_par5_text"/>
+               <audio clipBegin="01:07.977"
+                      clipEnd="01:08.587"
+                      id="mo1_seq25-2_par5_audio"
+                      src="speechgen0004.mp3"/>
+            </par>
+            <par id="mo1_seq25-2_par6" epub:type="table-cell">
+               <text src="content.xhtml#dtb37" id="mo1_seq25-2_par6_text"/>
+               <audio clipBegin="01:08.587"
+                      clipEnd="01:09.193"
+                      id="mo1_seq25-2_par6_audio"
+                      src="speechgen0004.mp3"/>
+            </par>
+            <par id="mo1_seq25-2_par7" epub:type="table-cell">
+               <text src="content.xhtml#dtb38" id="mo1_seq25-2_par7_text"/>
+               <audio clipBegin="01:09.193"
+                      clipEnd="01:09.713"
+                      id="mo1_seq25-2_par7_audio"
+                      src="speechgen0004.mp3"/>
+            </par>
+            <par id="mo1_seq25-2_par8" epub:type="table-cell">
+               <text src="content.xhtml#dtb39" id="mo1_seq25-2_par8_text"/>
+               <audio clipBegin="01:09.713"
+                      clipEnd="01:10.378"
+                      id="mo1_seq25-2_par8_audio"
+                      src="speechgen0004.mp3"/>
+            </par>
+         </seq>
+         <seq id="mo1_seq25-3" epub:textref="content.xhtml#dtb40" epub:type="table-row">
+            <par id="mo1_seq25-3_par1" epub:type="table-cell">
+               <text src="content.xhtml#dtb41" id="mo1_seq25-3_par1_text"/>
+               <audio clipBegin="01:10.378"
+                      clipEnd="01:11.1"
+                      id="mo1_seq25-3_par1_audio"
+                      src="speechgen0004.mp3"/>
+            </par>
+            <par id="mo1_seq25-3_par2" epub:type="table-cell">
+               <text src="content.xhtml#dtb42" id="mo1_seq25-3_par2_text"/>
+               <audio clipBegin="01:11.1"
+                      clipEnd="01:11.722"
+                      id="mo1_seq25-3_par2_audio"
+                      src="speechgen0004.mp3"/>
+            </par>
+            <par id="mo1_seq25-3_par3" epub:type="table-cell">
+               <text src="content.xhtml#dtb43" id="mo1_seq25-3_par3_text"/>
+               <audio clipBegin="01:11.722"
+                      clipEnd="01:12.354"
+                      id="mo1_seq25-3_par3_audio"
+                      src="speechgen0004.mp3"/>
+            </par>
+            <par id="mo1_seq25-3_par4" epub:type="table-cell">
+               <text src="content.xhtml#dtb44" id="mo1_seq25-3_par4_text"/>
+               <audio clipBegin="01:12.354"
+                      clipEnd="01:13.016"
+                      id="mo1_seq25-3_par4_audio"
+                      src="speechgen0004.mp3"/>
+            </par>
+            <par id="mo1_seq25-3_par5" epub:type="table-cell">
+               <text src="content.xhtml#dtb45" id="mo1_seq25-3_par5_text"/>
+               <audio clipBegin="01:13.016"
+                      clipEnd="01:13.667"
+                      id="mo1_seq25-3_par5_audio"
+                      src="speechgen0004.mp3"/>
+            </par>
+            <par id="mo1_seq25-3_par6" epub:type="table-cell">
+               <text src="content.xhtml#dtb46" id="mo1_seq25-3_par6_text"/>
+               <audio clipBegin="01:13.667"
+                      clipEnd="01:14.316"
+                      id="mo1_seq25-3_par6_audio"
+                      src="speechgen0004.mp3"/>
+            </par>
+            <par id="mo1_seq25-3_par7" epub:type="table-cell">
+               <text src="content.xhtml#dtb47" id="mo1_seq25-3_par7_text"/>
+               <audio clipBegin="01:14.316"
+                      clipEnd="01:15.225"
+                      id="mo1_seq25-3_par7_audio"
+                      src="speechgen0004.mp3"/>
+            </par>
+            <par id="mo1_seq25-3_par8" epub:type="table-cell">
+               <text src="content.xhtml#dtb48" id="mo1_seq25-3_par8_text"/>
+               <audio clipBegin="01:15.225"
+                      clipEnd="01:17.542"
+                      id="mo1_seq25-3_par8_audio"
+                      src="speechgen0004.mp3"/>
+            </par>
+         </seq>
+      </seq>
+      
+      <par id="mo1_par26">
+         <text src="content.xhtml#dtb49" id="mo1_par26_text"/>
+         <audio clipBegin="01:17.542"
+                clipEnd="01:19.366"
+                id="mo1_par26_audio"
+                src="speechgen0004.mp3"/>
+      </par>
+   </body>
+</smil>

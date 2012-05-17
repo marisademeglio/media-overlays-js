@@ -51,6 +51,19 @@
                 "title": "Moby Dick",
                 "features": [],
                 "smilurl": "http://localhost:4000/content/moby/chapter_001_overlay.smil"
+            },
+            
+            // skip demo
+            "skip": {
+                "title": "Skippability and Escapability",
+                "features": ["Skippability", "Escapability"],
+                "smilurl": "http://localhost:4000/content/skipdemo-2012/content.smil",
+                "toc": [
+                    {
+                        "label": "Right before table", 
+                        "target": "content.xhtml#dtb20"
+                    }
+                ]
             }
             
         };
@@ -77,6 +90,10 @@
             // use the media overlay model
             var model = new MediaOverlay();
             
+            model.addSkipType("pagebreak");
+            model.addSkipType("sidebar");
+            model.addEscapeType("table-row");
+            
             // our views
             var playerview = new Player({model: model, el: $("#controls")});  
             var textview = new TextArea({model: model, el: $("#textarea")});
@@ -89,7 +106,8 @@
             
             events: {
                 'click #playpause': 'playpause',
-                'change #volume': 'setvolume'
+                'change #volume': 'setvolume',
+                'click #escape': 'escape'
             },
             
             initialize: function() {
@@ -98,6 +116,8 @@
                 this.model.bind('change:is_ready', function() {
                    self.is_loaded = true; 
                 });
+                this.model.bind('change:can_escape', function() {self.render()});
+                this.render();
             },
             
             render: function() {
@@ -109,6 +129,13 @@
                     $("#playpause").text("play");
                     $("#cb").removeAttr('disabled');
                 }
+                if (this.model.get("can_escape")) {
+                    $("#escape").removeAttr('disabled');
+                }
+                else {
+                    $("#escape").attr('disabled', 'disabled');
+                }
+                
                 return this;
             },
             
@@ -134,6 +161,9 @@
             },
             setvolume: function() {
                 this.model.setVolume($("#volume")[0].value/100);
+            },
+            escape: function() {
+                this.model.escape();
             }
         });
 
@@ -250,9 +280,7 @@
             render: function() {
                 var visible = dataset.hasOwnProperty("toc") && this.model.get("is_ready");
                 $(this.el).toggle(visible);
-            }
-           
-            
+            } 
         });
          
         </script>
@@ -271,7 +299,7 @@
             padding: 10px;
                 
         }
-        #playpause {
+        #playpause, #escape{
             margin-right: 50px;
             font-size: medium;
         }  
@@ -319,6 +347,7 @@
         
         <div id="controls">
             <button id="playpause">play</button>
+            <button id="escape">escape</button>
             <label for="volume">Volume</label><input id="volume" type="range"  min="0" max="100"></input>
         </div>
         

@@ -2,7 +2,6 @@
 MediaOverlay = Backbone.Model.extend({
     audioplayer: null,
     smilModel: null,
-    smilUrl: null,
     
     // observable properties
     defaults: {
@@ -11,7 +10,8 @@ MediaOverlay = Backbone.Model.extend({
         is_playing: false,
         should_highlight: true,
         current_text_document_url: null,
-        current_text_element_id: null        
+        current_text_element_id: null,
+        can_escape: false      
     },
     
     initialize: function() {
@@ -26,12 +26,13 @@ MediaOverlay = Backbone.Model.extend({
         this.audioplayer.setNotifyOnPlay(function(){
            self.set({is_playing: self.audioplayer.isPlaying()});
         });
-        
+        // initialize the model so we can set its settings, for ex. skippability, before loading a file
+        this.smilModel = new SmilModel();
     },
     // load a file; must provide a 'url' option
     fetch: function(options) {
         this.set({is_ready: false});
-        this.smilUrl = options.url;
+        this.smilModel.setUrl(options.url);
         options || (options = {});
         options.dataType="xml";
         Backbone.Model.prototype.fetch.call(this, options);
@@ -39,10 +40,16 @@ MediaOverlay = Backbone.Model.extend({
     // backbone fetch() callback
     parse: function(xml) {
         var self = this;
-        this.smilModel = new SmilModel();
-        this.smilModel.setUrl(this.smilUrl);
+        
         this.smilModel.setNotifySmilDone(function() {
+            if (self.get("is_playing")) {
+                self.audioplayer.pause();
+            }
             self.set({is_document_done: true});
+        });
+        
+        this.smilModel.setNotifyCanEscape(function(canEscape) {
+           self.set({can_escape: canEscape}); 
         });
         
         // very important piece of code: attach render functions to the model
@@ -60,6 +67,7 @@ MediaOverlay = Backbone.Model.extend({
                     // reset the node's property
                     this.isJumpTarget = false;
                 }
+                
                 // play the node
                 self.audioplayer.play($(this).attr("src"), parseFloat($(this).attr("clipBegin")), parseFloat($(this).attr("clipEnd")), isJumpTarget);
             }, 
@@ -67,9 +75,24 @@ MediaOverlay = Backbone.Model.extend({
                 var src = $(this).attr("src");
                 // broadcast the text properties so that any listeners can do the right thing wrt loading/highlighting text
                 self.set({
-                    current_text_document_url: self.stripFragment(src), 
-                    current_text_element_id: self.getFragment(src)
+                    current_text_document_url: stripFragment(src), 
+                    current_text_element_id: getFragment(src)
                 });
+                                
+                function getFragment(url) {
+                    if (url.indexOf("#") != -1 && url.indexOf("#") < url.length -1) {
+                        return url.substr(url.indexOf("#")+1);
+                    }
+                    return "";
+                }
+                function stripFragment(url) {
+                    if (url.indexOf("#") == -1) {
+                        return url;
+                    }
+                    else {
+                        return url.substr(0, url.indexOf("#"));
+                    }
+                }
             }
         });
         
@@ -94,6 +117,9 @@ MediaOverlay = Backbone.Model.extend({
     resume: function() {
         this.audioplayer.resume();        
     },
+    escape: function() {
+        this.smilModel.escape();
+    },
     findNodeByTextSrc: function(src) {
         var elm = this.smilModel.findNodeByAttrValue("text", "src", src);
         if (elm == null){
@@ -101,21 +127,29 @@ MediaOverlay = Backbone.Model.extend({
         }    
         return elm;
     },
+    // volume is a floating-point number between 0 and 1
     setVolume: function(volume) {
         this.audioplayer.setVolume(volume);
     },
-    getFragment: function(url) {
-        if (url.indexOf("#") != -1 && url.indexOf("#") < url.length -1) {
-            return url.substr(url.indexOf("#")+1);
-        }
-        return "";
+    
+    // add an epub:type value to the list of things that playback must skip
+    addSkipType: function(name) {
+        this.smilModel.addSkipType(name);
     },
-    stripFragment: function(url) {
-        if (url.indexOf("#") == -1) {
-            return url;
-        }
-        else {
-            return url.substr(0, url.indexOf("#"));
-        }
+    
+    // remove an epub:type value from the list of things that playback must skip
+    removeSkipType: function(name) {
+        this.smilModel.removeSkipType(name);
+    },
+    
+    // add an epub:type value to the list of things that users may escape
+    addEscapeType: function(name) {
+        this.smilModel.addEscapeType(name);
+    },
+    // remove an epub:type value from the list of things that users may escape
+    removeEscapeType: function(name) {
+        this.smilModel.removeEscapeType(name);
     }
+    
+    
 });

@@ -12,6 +12,13 @@ SmilModel = function() {
     NodeLogic = {
         
         parRender: function() {
+            // if this node should be skipped, then fast-forward through it
+            if (mustSkip(this)) {
+                this.parentNode.notifyChildDone(this);
+                return;
+            }
+            currentTimeContainer = this;
+            notifyCanEscape(canEscape(this));
             $.each(this.childNodes, function(index, value) {
                 if (value.hasOwnProperty("render")) {
                     value.render();
@@ -21,6 +28,13 @@ SmilModel = function() {
     
         // render starting at the given node; if null, start at the beginning
         seqRender: function(node) {
+            // if this node should be skipped, then fast-forward through it
+            if (mustSkip(this)) {
+                this.parentNode.notifyChildDone(this);
+                return;
+            }
+            currentTimeContainer = this;
+            notifyCanEscape(canEscape(this));
             if (node == null) {
                 this.firstElementChild.render();
             }
@@ -77,8 +91,13 @@ SmilModel = function() {
                     "text": function() {}}
     var url = null;
     var notifySmilDone = null;
+    var notifyCanEscape = null;
     
     var root = null;
+    var currentTimeContainer = null;
+    
+    var mustSkipTypes = [];
+    var mayEscapeTypes = [];
     
     // call this first with the media node renderers to add them to the master list
     this.addRenderers = function(rendererList) {
@@ -93,6 +112,11 @@ SmilModel = function() {
     // set the callback for when the tree is done
     this.setNotifySmilDone = function(fn) {
         notifySmilDone = fn;
+    };
+    
+    // set the callback for notifying about escapability
+    this.setNotifyCanEscape = function(fn) {
+        notifyCanEscape = fn;
     };
     
     // build the model
@@ -110,7 +134,7 @@ SmilModel = function() {
         else {
             // if we're jumping to a point in the middle of the tree, then mark the first audio clip as a jump target
             // because it affects audio playback
-            var audioNode = this.peekNextAudio(node);
+            var audioNode = this.peekNextAudio(node, false);
             audioNode.isJumpTarget = true;
             node.parentNode.render(node);
         }
@@ -120,31 +144,74 @@ SmilModel = function() {
         return $(root).find(nodename + "[" + attr + "='" + val + "']")[0];
     };
     
+    this.addSkipType = function(name) {
+       if (mustSkipTypes.indexOf(name) == -1) {
+           mustSkipTypes.push(name);
+       }
+    };
+    
+    this.removeSkipType = function(name) {
+        mustSkipTypes = jQuery.grep(mustSkipTypes, function(val) {
+            return val != name;
+        });
+    };
+    
+    this.addEscapeType = function(name) {
+        if (mayEscapeTypes.indexOf(name) == -1) {
+            mayEscapeTypes.push(name);
+        }
+    };
+    
+    this.removeEscapeType = function(name) {
+        mustEscapeTypes = jQuery.grep(mustEscapeTypes, function(val) {
+            return val != name;
+        });
+    };
+    
+    this.escape = function() {
+        if (canEscape(currentTimeContainer)) {
+            // find the nearest epub:type
+            var node = currentTimeContainer;
+            
+            while(mayEscapeTypes.indexOf($(node).attr("epub:type")) == -1 && node != root) {
+                node = node.parentNode;
+            }
+            
+            // special case: escaping the root of the document
+            if (node == root) {
+                notifySmilDone();
+            }
+            else {
+                node.parentNode.notifyChildDone(node);
+            }
+        }
+    };
+    
     // see what the next audio node is going to be
     // TODO take skippability into consideration
-    this.peekNextAudio = function(currentNode) {
+    this.peekNextAudio = function(node) {
         
         // these first 2 cases are arguably just here for convenience: if we're near an audio node, then return it
         // TODO this does not consider that audio elements are actually optional children of <par>
-        if (currentNode.tagName == "par") {
-            return $(currentNode).find("audio")[0];
+        if (node.tagName == "par") {
+            return $(node).find("audio")[0];
         }
         // TODO same as above
-        if (currentNode.tagName == "text") {
-            return $(currentNode.parentNode).find("audio")[0];
+        if (node.tagName == "text") {
+            return $(node.parentNode).find("audio")[0];
         }
         
         // if we aren't near an audio node, then keep looking
-        var node = currentNode.parentNode;
+        var tmpnode = node.parentNode;
         // go up the tree until we find a relative
-        while(node.nextElementSibling == null) {
-            node = node.parentNode;
-            if (node == root) {
+        while(tmpnode.nextElementSibling == null) {
+            tmpnode = tmpnode.parentNode;
+            if (tmpnode == root) {
                 return null;
             }
         }
         // find the first audio node
-        return $(node.nextElementSibling).find("audio")[0];
+        return $(tmpnode.nextElementSibling).find("audio")[0];
     };
     
     // recursively process a SMIL XML DOM
@@ -207,9 +274,23 @@ SmilModel = function() {
         }
     }
     
-    // in the future, this will act as a skippability filter
-    function canPlayNode(node) {
-        return true;
+    // see if this node or any of its ancestors is of a type that is currently set to be skipped
+    function mustSkip(node) {
+        var isInList = mustSkipTypes.indexOf($(node).attr("epub:type")) != -1;
+        
+        if (node == root) {
+            return isInList;
+        }
+        return isInList || mustSkip(node.parentNode);
+    }
+    
+    function canEscape(node) {
+        var isInList = mayEscapeTypes.indexOf($(node).attr("epub:type")) != -1;
+        
+        if (node == root) {
+            return isInList;
+        }
+        return isInList || canEscape(node.parentNode);
     }
     
     function resolveUrl(url, baseUrl) {

@@ -1,0 +1,89 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:epub="http://www.idpf.org/2007/ops" xml:lang="en">
+   <head>
+      <title>Skippability and Escapability Demo</title>
+      <link rel="stylesheet" type="text/css" href="default.css"/>
+   </head>
+   <body>
+     <h1 epub:type="title" id="dtb2">Skippability and Escapability</h1>
+         
+     <span epub:type="pagebreak" id="page-1" title="1">1</span>
+         
+     <p>
+        <span class="sentence" id="dtb3">Skippability and escapability are features of audio book reading systems that allow users to control their experience.  </span>
+        <span class="sentence" id="dtb4">These features started in <abbr title="Digital Accessible Information System">DAISY</abbr> and have been adopted by EPUB. </span>
+        <span class="sentence" id="dtb5">This brief demo was created to give examples of these features.</span>
+     </p>
+         
+      <h1 id="dtb6">Skippability</h1>
+      
+     <span epub:type="pagebreak" id="page-2" title="2">2</span>
+           
+     <p>
+        <span class="sentence" id="dtb7">While reading, Users may want to turn on or off certain features of the Publication, such as sidebars, footnotes, page numbers, or other types of secondary content. </span>
+        <span class="sentence" id="dtb8">This feature is called skippability.</span>
+        <span class="sentence" id="dtb9">Reading Systems should use the semantic information provided by Media Overlay elements' epub:type attribute to determine when to offer Users the option of skippable features. </span>
+        <span class="sentence" id="dtb10">In the following example, a Reading System should offer the User the option of turning on and off the page break/page number announcements, which are often cumbersome to listen to.</span>
+     </p>
+     
+     <p id="dtb11">For example, in this demo, page numbers and sidebars may be skipped over.</p>
+     
+     <aside  epub:type="sidebar" id="aside1">
+         <p id="dtb12">Sidebars contain secondary or supplementary content, typically formatted as an inset or box.</p>
+         <p id="dtb13">Did you know that the item you are reading now is in fact a sidebar?</p>
+      </aside>
+      
+     <h1 id="dtb14">Escapability</h1>
+     
+     <span epub:type="pagebreak" id="page-3" title="3">3</span>
+     
+     <p>
+        <span class="sentence" id="dtb15">Escapable items are nested structures such as tables, lists, and sidebars that listeners may wish to skip over, continuing to read from the point immediately after the nested structure. </span>
+        <span class="sentence" id="dtb16">The escapability feature differs from the skippability feature in that it does not enable or disable entire types of items, but provides an exit from them (<abbr title="for example">e.g.</abbr>, a User can listen to some of the content before choosing to escape). </span>
+        <span class="sentence" id="dtb17">Reading Systems should allow escaping of nested structures. </span>
+        <span class="sentence" id="dtb18">Reading Systems must determine the start of nested structures by the value of the epub:type attribute (<abbr title="for example">e.g.</abbr>, glossary) and should offer Users the option to skip playback of that structure and resume with whatever content comes after it. </span>
+     </p>
+     
+     <span epub:type="pagebreak" id="page-4" title="4">4</span>
+         
+     <p>
+        <span class="sentence" id="dtb19">The following table may be skipped or escaped. </span>
+        <span class="sentence" id="dtb20">For the purposes of our demo, we'll show how to escape each row.</span>
+     </p>
+     
+     <table id="dtb21">
+        <tr id="dtb22">
+           <td id="dtb23" rowspan="1" colspan="1">A</td>
+           <td id="dtb24" colspan="1" rowspan="1">B</td>
+           <td id="dtb25" rowspan="1" colspan="1">C</td>
+           <td id="dtb26" rowspan="1" colspan="1">D</td>
+           <td id="dtb27" rowspan="1" colspan="1">E</td>
+           <td id="dtb28" rowspan="1" colspan="1">F</td>
+           <td id="dtb29" colspan="1" rowspan="1">G</td>
+           <td id="dtb30" rowspan="1" colspan="1">H</td>
+        </tr>
+        <tr id="dtb31">
+           <td id="dtb32" rowspan="1" colspan="1">I</td>
+           <td id="dtb33" rowspan="1" colspan="1">J</td>
+           <td id="dtb34" colspan="1" rowspan="1">K</td>
+           <td id="dtb35" colspan="1" rowspan="1">L</td>
+           <td id="dtb36" colspan="1" rowspan="1">M</td>
+           <td id="dtb37" rowspan="1" colspan="1">N</td>
+           <td id="dtb38" colspan="1" rowspan="1">O</td>
+           <td id="dtb39" rowspan="1" colspan="1">P</td>
+        </tr>
+        <tr id="dtb40">
+           <td id="dtb41" rowspan="1" colspan="1">Q</td>
+           <td id="dtb42" rowspan="1" colspan="1">R</td>
+           <td id="dtb43" rowspan="1" colspan="1">S</td>
+           <td id="dtb44" colspan="1" rowspan="1">T</td>
+           <td id="dtb45" rowspan="1" colspan="1">U</td>
+           <td id="dtb46" colspan="1" rowspan="1">V</td>
+           <td id="dtb47" colspan="1" rowspan="1">W</td>
+           <td id="dtb48" rowspan="1" colspan="1">X</td>
+        </tr>
+     </table>
+     
+     <p id="dtb49">This concludes the demo.</p>
+      
+   </body>
+</html>
