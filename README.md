@@ -19,12 +19,10 @@ Then (every time), start the local server in the source code directory with
 
     $ rake server
 
-Navigate to http://localhost:4000/mo-player.html and press "play"
+Navigate to http://localhost:4000/tests/test-index.html and select a test to run.
 
 # Future additions
 
- * Skippability
- * Escapability
  * Special handling when encountering a text node by itself. This means that the text node is pointing to timed media in the HTML file.
 
 # Approach to SMIL playback
