@@ -7,11 +7,6 @@ This is a partial implementation of EPUB Media Overlays.
 
 See [the API](https://github.com/marisademeglio/media-overlays-js/wiki/api) for more details
 
-Status: 
-
- * in the example UI, highlights don't get unhighlighted (though this is not a problem with the MO implementation but rather with the lame front end)
- * not yet implemented: see [future additions](#future-additions)
-
 # Run test
 
 (first time)
