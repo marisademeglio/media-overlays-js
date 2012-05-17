@@ -1,4 +1,4 @@
-baseurl = "http://localhost:4000/testdata/alphabet/";
+baseurl = "http://localhost:4000/content/alphabet/";
 
 clips = [["alphabet.mp3", 0.0, 0.433, "A"]
 ,["alphabet.mp3", 0.433, 1.015, "B"]

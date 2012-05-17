@@ -1,4 +1,4 @@
-baseurl = "http://localhost:4000/testdata/valentin/epub/Publication/Content/";
+baseurl = "http://localhost:4000/content/valentin/";
 
 clips = [["hauy_0001.mp3", 0.0, 2.504, "Valentin Haüy"]
 ,["hauy_0001.mp3", 2.504, 6.454, "The father of the education for the blind"]

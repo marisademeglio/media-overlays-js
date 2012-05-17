@@ -5,7 +5,7 @@
 // just continue playing itself and you can hear how it goes out of order
 // not sure if there is a way around this given the browser limitations
 
-baseurl = "http://localhost:4000/testdata/numbers/";
+baseurl = "http://localhost:4000/content/numbers/";
 
 clips = [["numbers.mp3", 0.0, 0.751, "0"]
 ,["numbers.mp3", 3.262, 3.865, "1"]

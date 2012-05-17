@@ -1,4 +1,4 @@
-baseurl = "http://localhost:4000/testdata/moby/";
+baseurl = "http://localhost:4000/content/moby/";
 
 clips = [["audio/mobydick_001_002_melville.mp4", 24.5, 29.268, "Chapter 1. Loomings."]
 ,["audio/mobydick_001_002_melville.mp4", 29.268, 29.441, "Call"]
