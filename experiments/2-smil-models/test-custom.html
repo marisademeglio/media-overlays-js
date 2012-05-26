@@ -19,12 +19,16 @@
             
             $("#findbyid").click(function() {
                 lookupId();
-            });            
+            });     
+            
+            $("#walkdom").click(function() {
+                walkTheDom();
+            })       
         });
         
         // option #1, build a smil model 
         function createModel() {
-            $("#file").text("Testing with DOM and " + testurl);
+            $("#file").text("Creating a SMIL model of " + testurl);
             $.ajax({
                 url: testurl,
                 dataType: "xml",
@@ -38,7 +42,7 @@
                 var smilbody = xml.getElementsByTagName("body")[0];//$(xml).find("body")[0]; 
                 var smilModelBuilder = new SmilModelBuilder();
                 smilModel = smilModelBuilder.build(smilbody, renderAudio, renderText, testurl);
-                $("#createstatus").text("Tree created");
+                $("#createstatus").text("Model created");
             }
             function renderAudio() {
                 console.log("AUDIO");
@@ -50,12 +54,14 @@
         
         // option #2: don't do anything, just walk the DOM.  see how much memory it uses! this shouldn't let memory hang around once the DOM has been traversed.
         function walkTheDom() {
+            $("#file").text("Traversing the DOM of " + testurl);
+            
             $.ajax({
                 url: testurl,
                 dataType: "xml",
                 success: function(xml) {
                     doNothing($(xml).find("body")[0]);
-                    $("#createstatus").text("Walked the tree");
+                    $("#createstatus").text("Done");
                 }
             });
     
@@ -82,12 +88,13 @@
     <body>
         <h1>Custom SMIL Test</h1>
         
+        <button id="walkdom">Just load and traverse the DOM</button>
         <button id="createtree">Read file into tree structure</button>
         <button id="findbyid">Find a node by its ID</button>
         <div id="file"></div>
         <div id="createstatus"></div>
         <div id="findbyidstatus"></div>
         
-        
+        <p>Use Chrome's timeline to see the memory usage for different events.</p>
     </body>
 </html>

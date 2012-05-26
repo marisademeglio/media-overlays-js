@@ -65,9 +65,9 @@ Two parsers have been tested, DOM and SAX.  SAX + custom tree object consumes le
 
 For DOM parsing, there are two options: use the DOM tree as-is and add the properties we need or use the DOM tree to construct a custom object. 
 
-Using a DOM as-is is very fast though risks high memory usage.
+Using a DOM as-is is very fast though risks high memory usage. This is the current approach, which seems reasonable for all but the hugest files (e.g. 50 MB).
 
-Using the DOM to construct a custom tree object seems as though it would consume less memory once the DOM is discarded (letting only the custom tree object persist), actual results vary. Sometimes after waiting a minute or so, the browser does some garbage collection, indicating removal of the DOM; other times, it seems to hang around.  See experiments/2-smil-models/custom-smil-model.js .
+Using the DOM to construct a custom tree object seems as though it would consume less memory once the DOM is discarded (letting only the custom tree object persist); however, actual results vary. Sometimes after waiting a minute or so, the browser does some garbage collection, indicating removal of the DOM; other times, it seems to hang around.  See experiments/2-smil-models/custom-smil-model.js .
 
 ## Audio playback
 
