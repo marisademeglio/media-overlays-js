@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+    <head>
+        <title>SMIL Custom Test</title>
+        <meta charset="UTF-8"></meta>
+        <script src="../../lib/jquery-1.7.1.min.js"></script>
+        <script src="custom-smil-model.js"></script>
+
+        <script>
+        var testurl = "http://localhost:4000/content/smil-sizes/huge-file.smil";
+        var smilModel = null;
+        
+        $(document).ready(function() {
+            
+            $("#createtree").click(function() {
+               //createModel(); 
+               walkTheDom();
+            });
+            
+            $("#findbyid").click(function() {
+                lookupId();
+            });            
+        });
+        
+        // option #1, build a smil model 
+        function createModel() {
+            $("#file").text("Testing with DOM and " + testurl);
+            $.ajax({
+                url: testurl,
+                dataType: "xml",
+                success: function(xml) {
+                    build(xml);
+                }
+            });
+            
+            function build(xml) {
+                var builder = new SmilModelBuilder();
+                var smilbody = xml.getElementsByTagName("body")[0];//$(xml).find("body")[0]; 
+                var smilModelBuilder = new SmilModelBuilder();
+                smilModel = smilModelBuilder.build(smilbody, renderAudio, renderText, testurl);
+                $("#createstatus").text("Tree created");
+            }
+            function renderAudio() {
+                console.log("AUDIO");
+            } 
+            function renderText(){
+                console.log("TEXT");
+            }
+        }
+        
+        // option #2: don't do anything, just walk the DOM.  see how much memory it uses! this shouldn't let memory hang around once the DOM has been traversed.
+        function walkTheDom() {
+            $.ajax({
+                url: testurl,
+                dataType: "xml",
+                success: function(xml) {
+                    doNothing($(xml).find("body")[0]);
+                    $("#createstatus").text("Walked the tree");
+                }
+            });
+    
+            function doNothing(elm) {
+                $.each(elm.childNodes, function(idx, val) {
+                    doNothing(val);
+                });
+            }
+        }
+        
+        function lookupId() {
+            var node = smilModel.findNode(null, {"id": "p333300"});
+            $("#findbyidstatus").text(smilModel.smilNodeToString(node));
+        }
+        
+        </script>
+        <style>
+        body{
+            font-family: helvetica;
+            margin: 20px;
+        }
+        </style>
+    </head>
+    <body>
+        <h1>Custom SMIL Test</h1>
+        
+        <button id="createtree">Read file into tree structure</button>
+        <button id="findbyid">Find a node by its ID</button>
+        <div id="file"></div>
+        <div id="createstatus"></div>
+        <div id="findbyidstatus"></div>
+        
+        
+    </body>
+</html>

@@ -29,7 +29,7 @@ Navigate to http://localhost:4000/tests/test-index.html and select a test to run
 
 See smil-model.js . 
 
-Parse a single SMIL file and create a tree structure with the following functions:
+Parse a single SMIL file into a tree structure with the following functions on the nodes:
 
  * Node.render = function to render that node
  * Node.notifyChildDone = function called when the node's child is done rendering
@@ -59,6 +59,15 @@ In addition to the functions, nodes may also pick up this property:
 
 This property is necessary because of this use case: the user clicks "footnote 5" and the player jumps there.  Footnote 5 is in the middle of a SMIL file and therefore in the middle of a playback tree.  The first clip of footnote 5 is 4 seconds long.  After 1 second, the user clicks "footnote 5" again.  Normally, the audio player would see that it is already playing that clip and would just continue doing so.  However, in this case, we want to force it to re-start, so we identify the node as a jump target.  The audio player's behavior has been optimized for smooth playback so this type of interruption is the exception.
 
+## Notes about parsing
+
+Two parsers have been tested, DOM and SAX.  SAX + custom tree object consumes less memory but is too slow to be practical.
+
+For DOM parsing, there are two options: use the DOM tree as-is and add the properties we need or use the DOM tree to construct a custom object. 
+
+Using a DOM as-is is very fast though risks high memory usage.
+
+Using the DOM to construct a custom tree object seems as though it would consume less memory once the DOM is discarded (letting only the custom tree object persist), actual results vary. Sometimes after waiting a minute or so, the browser does some garbage collection, indicating removal of the DOM; other times, it seems to hang around.  See experiments/2-smil-models/custom-smil-model.js .
 
 ## Audio playback
 
