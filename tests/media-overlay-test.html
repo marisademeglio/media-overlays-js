@@ -88,7 +88,7 @@
             });
             
             // use the media overlay model
-            var model = new MediaOverlay();
+            var model = new MediaOverlay({"smil_url": dataset['smilurl']});
             
             model.addSkipType("pagebreak");
             model.addSkipType("sidebar");
@@ -148,7 +148,7 @@
                         self.model.unbind("change:is_ready", onready);
                         self.model.play(null); 
                     }
-                    this.model.fetch({url: dataset['smilurl']});
+                    this.model.fetch();
                 }
                 else {
                     if (this.model.get("is_playing")) {

@@ -134,14 +134,19 @@ SmilModel = function() {
         else {
             // if we're jumping to a point in the middle of the tree, then mark the first audio clip as a jump target
             // because it affects audio playback
-            var audioNode = this.peekNextAudio(node, false);
+            var jumpToNode = node;
+            // start our search from the parent element
+            if (node.tagName =="text") {
+                jumpToNode = node.parentNode;
+            }
+            var audioNode = findFirstInSubtree(jumpToNode, "audio");
             audioNode.isJumpTarget = true;
             node.parentNode.render(node);
         }
     };
     
-    this.findNodeByAttrValue = function(nodename, attr, val) {
-        return $(root).find(nodename + "[" + attr + "='" + val + "']")[0];
+    this.findNode = function(tagname, attr, val) {
+        return findFirstInSubtree(root, tagname, attr, val);
     };
     
     this.addSkipType = function(name) {
@@ -187,32 +192,31 @@ SmilModel = function() {
         }
     };
     
-    // see what the next audio node is going to be
-    // TODO take skippability into consideration
-    this.peekNextAudio = function(node) {
-        
-        // these first 2 cases are arguably just here for convenience: if we're near an audio node, then return it
-        // TODO this does not consider that audio elements are actually optional children of <par>
-        if (node.tagName == "par") {
-            return $(node).find("audio")[0];
+    // see if this node or any of its ancestors is of a type that is currently set to be skipped
+    function mustSkip(node) {
+        var isInList = mustSkipTypes.indexOf($(node).attr("epub:type")) != -1;
+        if (node == root) {
+            return isInList;
         }
-        // TODO same as above
-        if (node.tagName == "text") {
-            return $(node.parentNode).find("audio")[0];
+        return isInList || mustSkip(node.parentNode);
+    }
+    
+    function canEscape(node) {
+        var isInList = mayEscapeTypes.indexOf($(node).attr("epub:type")) != -1;
+        if (node == root) {
+            return isInList;
         }
-        
-        // if we aren't near an audio node, then keep looking
-        var tmpnode = node.parentNode;
-        // go up the tree until we find a relative
-        while(tmpnode.nextElementSibling == null) {
-            tmpnode = tmpnode.parentNode;
-            if (tmpnode == root) {
-                return null;
-            }
+        return isInList || canEscape(node.parentNode);
+    }
+    
+    function findFirstInSubtree(node, tagname, attr, val) {
+        var attrstr = "";
+        if (attr != undefined && val != undefined) {
+            attrstr = "[" + attr + "='" + val + "']";
         }
-        // find the first audio node
-        return $(tmpnode.nextElementSibling).find("audio")[0];
-    };
+        var nodename = tagname != undefined ? tagname : "";
+        return $(node).find(nodename + attrstr)[0];
+    }
     
     // recursively process a SMIL XML DOM
     function processTree(node) {
@@ -274,30 +278,10 @@ SmilModel = function() {
         }
     }
     
-    // see if this node or any of its ancestors is of a type that is currently set to be skipped
-    function mustSkip(node) {
-        var isInList = mustSkipTypes.indexOf($(node).attr("epub:type")) != -1;
-        
-        if (node == root) {
-            return isInList;
-        }
-        return isInList || mustSkip(node.parentNode);
-    }
-    
-    function canEscape(node) {
-        var isInList = mayEscapeTypes.indexOf($(node).attr("epub:type")) != -1;
-        
-        if (node == root) {
-            return isInList;
-        }
-        return isInList || canEscape(node.parentNode);
-    }
-    
     function resolveUrl(url, baseUrl) {
         if (url.indexOf("://") != -1) {
             return url;
-        }
-        
+        }        
         var base = baseUrl;
         if (baseUrl[baseUrl.length-1] != "/") {
             base = baseUrl.substr(0, baseUrl.lastIndexOf("/") + 1);
@@ -312,33 +296,40 @@ SmilModel = function() {
         var mins = 0;
         var secs = 0;
         
-        // parse as hh:mm:ss.fraction
-        // this also works for seconds-only, e.g. 12.345
-        arr = value.split(":");
-        secs = parseFloat(arr.pop());
-        if (arr.length > 0) {
-            mins = parseFloat(arr.pop());
-            if (arr.length > 0) {
-                hours = parseFloat(arr.pop());
-            }
+        if (value.indexOf("min") != -1) {
+            mins = parseFloat(value.substr(0, value.indexOf("min")));
         }
-        // look for unit 's', 'h', 'min', 'ms'
+        else if (value.indexOf("ms") != -1) {
+            var ms = parseFloat(value.substr(0, value.indexOf("ms")));
+            secs = ms/1000;
+        }
+        else if (value.indexOf("s") != -1) {
+            secs = parseFloat(value.substr(0, value.indexOf("s")));                
+        }
+        else if (value.indexOf("h") != -1) {
+            hours = parseFloat(value.substr(0, value.indexOf("h")));                
+        }
         else {
-            if (value.indexOf("min") != -1) {
-                mins = parseFloat(value.substr(0, value.indexOf("min")));
-            }
-            else if (value.indexOf("ms") != -1) {
-                var ms = parseFloat(value.substr(0, value.indexOf("ms")));
-                secs = ms/1000;
-            }
-            else if (value.indexOf("s") != -1) {
-                secs = parseFloat(value.substr(0, value.indexOf("s")));                
-            }
-            else if (value.indexOf("h") != -1) {
-                hours = parseFloat(value.substr(0, value.indexOf("h")));                
+            // parse as hh:mm:ss.fraction
+            // this also works for seconds-only, e.g. 12.345
+            arr = value.split(":");
+            secs = parseFloat(arr.pop());
+            if (arr.length > 0) {
+                mins = parseFloat(arr.pop());
+                if (arr.length > 0) {
+                    hours = parseFloat(arr.pop());
+                }
             }
         }
         var total = hours * 3600 + mins * 60 + secs;
         return total;
     }
+    
+    // exposed for unit testing purposes
+    this.testMustSkip = function(node) {
+        return mustSkip(node);
+    };
+    this.testCanEscape = function(node) {
+        return canEscape(node);
+    };
 };

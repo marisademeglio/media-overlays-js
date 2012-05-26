@@ -14,10 +14,13 @@ MediaOverlay = Backbone.Model.extend({
         can_escape: false      
     },
     
+    
+    // call the constructor with {"smil_url": url}
     initialize: function() {
         var self = this;
         this.audioplayer = new AudioClipPlayer();
-        this.audioplayer.setConsoleTrace(true);
+        this.audioplayer.setConsoleTrace(false);
+        this.url = this.get("smil_url");
         
         // always know whether we're playing or paused
         this.audioplayer.setNotifyOnPause(function() {
@@ -26,13 +29,10 @@ MediaOverlay = Backbone.Model.extend({
         this.audioplayer.setNotifyOnPlay(function(){
            self.set({is_playing: self.audioplayer.isPlaying()});
         });
-        // initialize the model so we can set its settings, for ex. skippability, before loading a file
-        this.smilModel = new SmilModel();
     },
-    // load a file; must provide a 'url' option
+
     fetch: function(options) {
         this.set({is_ready: false});
-        this.smilModel.setUrl(options.url);
         options || (options = {});
         options.dataType="xml";
         Backbone.Model.prototype.fetch.call(this, options);
@@ -40,7 +40,8 @@ MediaOverlay = Backbone.Model.extend({
     // backbone fetch() callback
     parse: function(xml) {
         var self = this;
-        
+        this.smilModel = new SmilModel();
+        this.smilModel.setUrl(this.url);
         this.smilModel.setNotifySmilDone(function() {
             if (self.get("is_playing")) {
                 self.audioplayer.pause();
@@ -104,9 +105,16 @@ MediaOverlay = Backbone.Model.extend({
     // start playback
     // node is a SMIL node that indicates the starting point
     // if node is null, playback starts at the beginning
+    // TODO: handle what happens if the user directly navigates to a node that is supposed to be skipped
+    // DAISY guidelines say to allow this and to play the node; however, there are lots of implementation options:
+    // 1. The UA controls this and calls removeSkipType before starting MO playback
+    // 2. The SMIL tree exposes that node, and assumes the UA does the same for the text display.
+    // 3. The SMIL tree exposes that node and all those above it to give maxiumum context, and assumes the UA does the same
+    // to explain #3 further: imagine that the user navigates directly to an image description that is within a sidebar, and both are set up to be skipped. 
+    // you probably don't just want to enable the image description without enabling the sidebar too.
     play: function(node) {
         this.set({is_document_done: false});
-        if (this.get("is_ready") == false) {
+        if (this.get("is_ready") == false || this.smilModel == null) {
             return;
         }
         this.smilModel.render(node);        
@@ -118,38 +126,60 @@ MediaOverlay = Backbone.Model.extend({
         this.audioplayer.resume();        
     },
     escape: function() {
+        if (this.get("is_ready") == false || this.smilModel == null) {
+            return;
+        }
         this.smilModel.escape();
     },
     findNodeByTextSrc: function(src) {
-        var elm = this.smilModel.findNodeByAttrValue("text", "src", src);
+		if (this.get("is_ready") == false || this.smilModel == null) {
+            return null;
+        }
+        var elm = this.smilModel.findNode("text", "src", src);
         if (elm == null){
-            elm = this.smilModel.findNodeByAttrValue("seq", "epub:textref", src);
+            elm = this.smilModel.findNode("seq", "epub:textref", src);
         }    
+        return elm;
+    },
+    findNodeById: function(id) {
+        if (this.get("is_ready") == false || this.smilModel == null) {
+            return null;
+        }
+        var elm = this.smilModel.findNode("", "id", id);
         return elm;
     },
     // volume is a floating-point number between 0 and 1
     setVolume: function(volume) {
         this.audioplayer.setVolume(volume);
     },
-    
     // add an epub:type value to the list of things that playback must skip
     addSkipType: function(name) {
+        if (this.get("is_ready") == false || this.smilModel == null) {
+            return;
+        }
         this.smilModel.addSkipType(name);
     },
-    
     // remove an epub:type value from the list of things that playback must skip
     removeSkipType: function(name) {
+        if (this.get("is_ready") == false || this.smilModel == null) {
+            return;
+        }
         this.smilModel.removeSkipType(name);
     },
     
     // add an epub:type value to the list of things that users may escape
     addEscapeType: function(name) {
+        if (this.get("is_ready") == false || this.smilModel == null) {
+            return;
+        }
         this.smilModel.addEscapeType(name);
     },
     // remove an epub:type value from the list of things that users may escape
     removeEscapeType: function(name) {
+        if (this.get("is_ready") == false || this.smilModel == null) {
+            return;
+        }
         this.smilModel.removeEscapeType(name);
     }
-    
     
 });

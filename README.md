@@ -27,9 +27,9 @@ Navigate to http://localhost:4000/tests/test-index.html and select a test to run
 
 # Approach to SMIL playback
 
-See SmilModel in mo-player.js 
+See smil-model.js . 
 
-Parse a single SMIL file and annotate the XML DOM as follows:
+Parse a single SMIL file and create a tree structure with the following functions:
 
  * Node.render = function to render that node
  * Node.notifyChildDone = function called when the node's child is done rendering
@@ -53,11 +53,12 @@ All nodes are hooked up to renderers to manage how they should be played.  Each 
 
 When a node is done playing, it must notify its parent via the Node.notifyChildDone method.  This method is also used to communicate from the audio clip player to the audio node that owns that clip.
 
-In addition to the functions added above during DOM annotation, nodes may also pick up this property:
+In addition to the functions, nodes may also pick up this property:
 
  * Node.isJumpTarget = the node is the start of playback in the middle of the tree.  
 
 This property is necessary because of this use case: the user clicks "footnote 5" and the player jumps there.  Footnote 5 is in the middle of a SMIL file and therefore in the middle of a playback tree.  The first clip of footnote 5 is 4 seconds long.  After 1 second, the user clicks "footnote 5" again.  Normally, the audio player would see that it is already playing that clip and would just continue doing so.  However, in this case, we want to force it to re-start, so we identify the node as a jump target.  The audio player's behavior has been optimized for smooth playback so this type of interruption is the exception.
+
 
 ## Audio playback
 
