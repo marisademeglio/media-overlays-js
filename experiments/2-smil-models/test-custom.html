@@ -29,13 +29,28 @@
         // option #1, build a smil model 
         function createModel() {
             $("#file").text("Creating a SMIL model of " + testurl);
-            $.ajax({
+           /* $.ajax({
                 url: testurl,
                 dataType: "xml",
                 success: function(xml) {
                     build(xml);
                 }
             });
+            */
+            request = new XMLHttpRequest();
+            request.onreadystatechange = function() {
+                if (request.readyState != 4)  { 
+                    return;
+                }
+                xml = request.responseXML; 
+                build(xml);
+                $("#createstatus").text("Done");
+                
+            };
+            request.open('GET', testurl, false);
+            request.overrideMimeType("text/xml");
+            request.send(null);
+            
             
             function build(xml) {
                 var builder = new SmilModelBuilder();
@@ -56,19 +71,43 @@
         function walkTheDom() {
             $("#file").text("Traversing the DOM of " + testurl);
             
-            $.ajax({
+            /*$.ajax({
                 url: testurl,
                 dataType: "xml",
                 success: function(xml) {
-                    doNothing($(xml).find("body")[0]);
+                    doNothing(xml.getElementsByTagName("body")[0]);//$(xml).find("body")[0]);
                     $("#createstatus").text("Done");
                 }
-            });
+            });*/
+            
+            
+            request = new XMLHttpRequest();
+            request.onreadystatechange = function() {
+                if (request.readyState != 4)  { 
+                    return;
+                }
+                xml = request.responseXML; 
+                doNothing(xml.getElementsByTagName("body")[0]);
+                $("#createstatus").text("Done");
+                xml = undefined;
+                request.onreadystatechange = null;
+                delete request;
+                return;
+                
+            };
+            request.open('GET', testurl, false);
+            request.overrideMimeType("text/xml");
+            request.send(null);
     
             function doNothing(elm) {
-                $.each(elm.childNodes, function(idx, val) {
+                /*$.each(elm.childNodes, function(idx, val) {
                     doNothing(val);
-                });
+                });*/
+                for (var i = 0; i<elm.childNodes.length; i++) {
+                    var val = elm.childNodes[i];
+                    //var x = elm.getAttribute("id");
+                    doNothing(val);
+                }
             }
         }
         

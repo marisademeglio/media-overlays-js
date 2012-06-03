@@ -314,7 +314,7 @@ SmilModelBuilder = function() {
     function processTree(elm) {
         var smilnode = nodeFactory(elm);
         var prevnode = null;
-        $.each(elm.childNodes, function(idx, val) {
+        /*$.each(elm.childNodes, function(idx, val) {
             if (val.nodeType == val.ELEMENT_NODE) {
                 var child = processTree(val);
                 child.parent = smilnode;
@@ -325,7 +325,20 @@ SmilModelBuilder = function() {
                 smilnode.children.push(child);
             }
         });
-        
+        */
+        for (var i = 0; i<elm.childNodes.length; i++) {
+            var val = elm.childNodes[i];
+            if (val.nodeType == val.ELEMENT_NODE) {
+                var child = processTree(val);
+                child.parent = smilnode;
+                if (prevnode != null) {
+                    prevnode.nextSibling = child;
+                }
+                prevnode = child;
+                smilnode.children.push(child);
+            }
+            
+        }
         return smilnode;
     }       
         

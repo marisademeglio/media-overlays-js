@@ -112,7 +112,7 @@ MediaOverlay = Backbone.Model.extend({
     // 3. The SMIL tree exposes that node and all those above it to give maxiumum context, and assumes the UA does the same
     // to explain #3 further: imagine that the user navigates directly to an image description that is within a sidebar, and both are set up to be skipped. 
     // you probably don't just want to enable the image description without enabling the sidebar too.
-    play: function(node) {
+    startPlayback: function(node) {
         this.set({is_document_done: false});
         if (this.get("is_ready") == false || this.smilModel == null) {
             return;
@@ -120,9 +120,15 @@ MediaOverlay = Backbone.Model.extend({
         this.smilModel.render(node);        
     },
     pause: function() {
+        if (this.get("is_ready") == false || this.smilModel == null) {
+            return;
+        }
         this.audioplayer.pause();
     },
     resume: function() {
+        if (this.get("is_ready") == false || this.smilModel == null) {
+            return;
+        }
         this.audioplayer.resume();        
     },
     escape: function() {

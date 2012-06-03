@@ -128,7 +128,7 @@ SmilModel = function() {
     
     // prepare the tree to start rendering from a node
     this.render = function(node) {
-        if (node == null || node == root) {
+        if (node == null || node == root || node == undefined) {
             root.render(null);
         }
         else {
