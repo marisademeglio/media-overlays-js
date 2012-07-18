@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Audio rate test</title>
+        <meta charset="UTF-8"></meta>
+        <script src="../../lib/jquery-1.7.1.min.js"></script>
+        <script src="../../src/smil-model.js"></script>
+
+        <script>
+        
+        $(document).ready(function() {
+            $("#mp3 input[type='range']").change(function() {
+                on_rate_change($("#mp3"));
+            });
+            
+            $("#aac input[type='range']").change(function() {
+                on_rate_change($("#aac"));
+            });
+            
+           
+        });
+        
+        function on_rate_change(section) {
+            var slider = section.find("input[type='range']");
+            var new_rate = parseFloat(slider.val()).toFixed(1); 
+            if (new_rate > 0 && new_rate <= 2.0) {
+                section.find("audio")[0].playbackRate = new_rate;
+                section.find(".current_rate").text(new_rate);
+            }
+            else {
+                console.log("Rate " + new_rate + " not supported.");
+            }
+        }
+        </script>
+        <style>
+        body{
+            font-family: helvetica;
+            margin: 20px;
+        }
+        audio, label {
+            display: block;
+            margin-top: 10px;
+        }
+        .slider span {
+            font-size: smaller;
+        }
+        
+        input[type=range] {
+            margin: 10px;
+        }
+        </style>
+    </head>
+    <body>
+        <h1>Audio rate test</h1>
+        
+        <section id="mp3">
+            <h2>MP3</h2>
+            <audio src="hauy_0001.mp3" controls></audio>
+            <label for="mp3_rate">Rate: <span class="current_rate">1.0</span></label>
+            <div class="slider">
+                <span>half-speed</span><input id="mp3_rate" type="range"  min=".5" max="2" value="1.0" step=".1"></input><span>double-speed</span>
+            </div>
+        </section>
+        
+        <section id="aac">
+            <h2>AAC</h2>
+            <audio src="mobydick_001_002_melville.mp4" controls></audio>
+            <label for="aac_rate">Rate: <span class="current_rate">1.0</span></label>
+            <div class="slider">
+                <span>half-speed</span><input id="aac_rate" type="range"  min=".5" max="2" value="1.0" step=".1"></input><span>double-speed</span>
+            </div>
+        </section>
+    </body>
+</html>

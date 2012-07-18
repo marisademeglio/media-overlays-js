@@ -1,66 +1,67 @@
 var smil = "";
-smil += '<smil xmlns="http://www.w3.org/ns/SMIL" xmlns:epub="http://www.idpf.org/2007/ops" version="3.0">';
-smil += '<body id="mo1" epub:textref="test.xhtml#start">';
+smil += "<smil xmlns='http://www.w3.org/ns/SMIL' xmlns:epub='http://www.idpf.org/2007/ops' version='3.0'>";
+smil += "<body id='mo1' epub:textref='test.xhtml#start'>";
 
 // real life pars 
-smil += '<par id="mo1_par1">';
-smil += '<text src="valentinhauy.xhtml#rgn_cnt_0001" id="mo1_par1_text"/>';
-smil += '<audio clipBegin="0s" clipEnd="2.504s" id="mo1_par1_audio" src="hauy_0001.mp3"/>';
-smil += '</par>';
-smil += '<par id="mo1_par2">';
-smil += '<text src="valentinhauy.xhtml#rgn_cnt_0002" id="mo1_par2_text"/>';
-smil += '<audio clipBegin="2.504s" clipEnd="6.454s" id="mo1_par2_audio" src="hauy_0001.mp3"/>';
-smil += '</par>';
-smil += '<par id="mo1_par3">';
-smil += '<text src="valentinhauy.xhtml#rgn_cnt_0003" id="mo1_par3_text"/>';
-smil += '<audio clipBegin="6.454s" clipEnd="9.775s" id="mo1_par3_audio" src="hauy_0001.mp3"/>';
-smil += '</par>';
-smil += '<par id="mo1_par4">';
-smil += '<text src="valentinhauy.xhtml#rgn_cnt_0004" id="mo1_par4_text"/>';
-smil += '<audio clipBegin="9.775s" clipEnd="15.804s" id="mo1_par4_audio" src="hauy_0001.mp3"/>';
-smil += '</par>';
+smil += "<par id='mo1_par1'>";
+smil += "<text src='valentinhauy.xhtml#rgn_cnt_0001' id='mo1_par1_text'/>";
+smil += "<audio clipBegin='0s' clipEnd='2.504s' id='mo1_par1_audio' src='hauy_0001.mp3'/>";
+smil += "</par>";
+smil += "<par id='mo1_par2'>";
+smil += "<text src='valentinhauy.xhtml#rgn_cnt_0002' id='mo1_par2_text'/>";
+smil += "<audio clipBegin='2.504s' clipEnd='6.454s' id='mo1_par2_audio' src='hauy_0001.mp3'/>";
+smil += "</par>";
+smil += "<par id='mo1_par3'>";
+smil += "<text src='valentinhauy.xhtml#rgn_cnt_0003' id='mo1_par3_text'/>";
+smil += "<audio clipBegin='6.454s' clipEnd='9.775s' id='mo1_par3_audio' src='hauy_0001.mp3'/>";
+smil += "</par>";
+smil += "<par id='mo1_par4'>";
+smil += "<text src='valentinhauy.xhtml#rgn_cnt_0004' id='mo1_par4_text'/>";
+smil += "<audio clipBegin='9.775s' clipEnd='15.804s' id='mo1_par4_audio' src='hauy_0001.mp3'/>";
+smil += "</par>";
 
 // made-up pars to test clock values
-smil += '<par id="testpar1">';
-smil += '<text src="test.xhtml#frag" id="testtext1"/>';
-smil += '<audio clipBegin="5:34:31.396" clipEnd="124:59:36" src="test.mp3" id="testaud1"/>';
-smil += '</par>';
+smil += "<par id='testpar1'>";
+smil += "<text src='test.xhtml#frag' id='testtext1'/>";
+smil += "<audio clipBegin='5:34:31.396' clipEnd='124:59:36' src='test.mp3' id='testaud1'/>";
+smil += "</par>";
 
-smil += '<par id="testpar2">';
-smil += '<text src="test.xhtml#frag" id="testtext2"/>';
-smil += '<audio clipBegin="0:00:04" clipEnd="0:05:01.2" src="test.mp3" id="testaud2"/>';
-smil += '</par>';
+smil += "<par id='testpar2'>";
+smil += "<text src='test.xhtml#frag' id='testtext2'/>";
+smil += "<audio clipBegin='0:00:04' clipEnd='0:05:01.2' src='test.mp3' id='testaud2'/>";
+smil += "</par>";
 
-smil += '<par id="testpar3">';
-smil += '<text src="test.xhtml#frag" id="testtext3"/>';
-smil += '<audio clipBegin="00:56.78" clipEnd="09:58" src="test.mp3" id="testaud3"/>';
-smil += '</par>';
+smil += "<par id='testpar3'>";
+smil += "<text src='test.xhtml#frag' id='testtext3'/>";
+smil += "<audio clipBegin='00:56.78' clipEnd='09:58' src='test.mp3' id='testaud3'/>";
+smil += "</par>";
 
-smil += '<par id="testpar4">';
-smil += '<text src="test.xhtml#frag" id="testtext4"/>';
-smil += '<audio clipBegin="13min" clipEnd="7.75h" src="test.mp3" id="testaud4"/>';
-smil += '</par>';
+smil += "<par id='testpar4'>";
+smil += "<text src='test.xhtml#frag' id='testtext4'/>";
+smil += "<audio clipBegin='13min' clipEnd='7.75h' src='test.mp3' id='testaud4'/>";
+smil += "</par>";
 
 // seq test data
-smil += '<seq id="testseq1" epub:textref="test.xhtml#frag0" epub:type="sidebar">';
-smil += '<par id="testpar5" epub:type="pagebreak">';
-smil += '<text src="test.xhtml#frag" id="testtext5"/>';
-smil += '<audio clipBegin="2345ms" clipEnd="76.2s" src="test.mp3" id="testaud5"/>';
-smil += '</par>';
+smil += "<seq id='testseq1' epub:textref='test.xhtml#frag0' epub:type='sidebar'>";
+smil += "<par id='testpar5' epub:type='pagebreak'>";
+smil += "<text src='test.xhtml#frag' id='testtext5'/>";
+smil += "<audio clipBegin='2345ms' clipEnd='76.2s' src='test.mp3' id='testaud5'/>";
+smil += "</par>";
 
-smil += '<par id="testpar6">';
-smil += '<text src="test.xhtml#frag" id="testtext6"/>';
-smil += '<audio clipBegin="0" clipEnd="12.345" src="test.mp3" id="testaud6"/>';
-smil += '</par>';
-smil += '</seq>';
+smil += "<par id='testpar6'>";
+smil += "<text src='test.xhtml#frag' id='testtext6'/>";
+smil += "<audio clipBegin='0' clipEnd='12.345' src='test.mp3' id='testaud6'/>";
+smil += "</par>";
+smil += "</seq>";
 
-smil += '<par id="testpar7">';
-smil += '<text src="test.xhtml#frag" id="testtext7"/>';
-smil += '<audio src="test.mp3" id="testaud7"/>';
-smil += '</par>';
+smil += "<par id='testpar7'>";
+smil += "<text src='test.xhtml#frag' id='testtext7'/>";
+smil += "<audio src='test.mp3' id='testaud7'/>";
+smil += "</par>";
 
-smil += '</body>';
-smil += '</smil>';
+smil += "</body>";
+smil += "</smil>";
+
 
 describe("SmilModel tests: ", function() {
     var smilModel;
